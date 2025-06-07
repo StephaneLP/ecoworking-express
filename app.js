@@ -1,16 +1,35 @@
 const express = require('express')
 const app = express()
-const router = express.Router()
 const port = 3000
+const routeCity = require('./routes/city')
 
-//////////////////////////////////////////////
-// CODE executé si requête
-//////////////////////////////////////////////
+/*********************************************************
+Requête : log date
+*********************************************************/
 
 app.use((req, res, next) => {
   console.log('Time:', Date.now())
   next()
 })
+
+/*********************************************************
+Route Ville
+*********************************************************/
+
+app.use('/ville/', routeCity)
+
+/*********************************************************
+Ouverture du port
+*********************************************************/
+
+app.listen(port, () => {
+    console.log(`L'application est démarrée sur le port ${port}`)
+}) 
+
+
+
+
+/*
 
 //////////////////////////////////////////////
 // FONCTIONS
@@ -102,11 +121,4 @@ app.get('/:id1/:id2', (req, res) => {
     res.send('DOUBLE GET METHOD')
 })
 
-//////////////////////////////////////////////
-// PORT
-//////////////////////////////////////////////
-
-app.listen(port, () => {
-    console.log(`L'application est démarrée sur le port ${port}`)
-}) 
-
+*/
