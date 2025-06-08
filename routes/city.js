@@ -1,8 +1,9 @@
 const express = require('express')
 const router = express.Router()
+const conn = require('../db/initdb')
 
 router.use((req, res, next) => {
-    console.log('Requête route CITY')
+    console.log('Requête / ROUTE : VILLE - METHOD : ' + req.method)
     next()
 })
 
@@ -12,8 +13,16 @@ CRUD : Fonctions
 
 // READ
 
-const selectAllCity = (req, res) => {
-    res.send('Sélection de toutes les villes')
+const selectAllCity = async (req, res) => {
+
+        
+        console.log("STOP")
+        const rows = await conn.query('SELECT id FROM city');
+        console.log(rows)
+
+
+
+    res.send('Sélection des villes')
 }
 
 const selectCityById = (req, res) => {
