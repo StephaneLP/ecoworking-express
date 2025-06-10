@@ -10,9 +10,18 @@ Requête : log date
 app.use(morgan('dev'))
 
 app.use((req, res, next) => {
-  console.log('Time:', Date.now())
+  const date = new Date();
+  const formattedDate = date.toLocaleString();
+  console.log('Time : ', formattedDate)
   next()
 })
+
+/*********************************************************
+Connexion BDD
+*********************************************************/
+
+const initdb = require('./db/initdb')
+initdb.initConnect()
 
 /*********************************************************
 Routes
@@ -31,14 +40,3 @@ Ouverture du port
 app.listen(port, () => {
     console.log(`L'application est démarrée sur le port ${port}`)
 }) 
-
-/*********************************************************
-Connexion BDD
-*********************************************************/
-
-// const initdb = require('./db/initdb')
-
-        // const conn = require('./db/connect')
-        // console.log("STOP")
-        // const rows = await conn.query('SELECT id FROM city');
-        // console.log(rows)

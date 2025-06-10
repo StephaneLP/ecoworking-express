@@ -1,11 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const conn = require('../db/initdb')
-
-router.use((req, res, next) => {
-    console.log('Requête / ROUTE : VILLE - METHOD : ' + req.method)
-    next()
-})
+const db = require('../db/initdb').objConn
 
 /*********************************************************
 CRUD : Fonctions
@@ -14,20 +9,24 @@ CRUD : Fonctions
 // READ
 
 const selectAllCity = async (req, res) => {
-
-        
-        console.log("STOP")
-        const rows = await conn.query('SELECT id FROM city');
-        console.log(rows)
-
-
-
-    res.send('Sélection des villes')
+    const rows = await db.connexion.query('SELECT id, name FROM city')
+    res.json(rows)
 }
 
-const selectCityById = (req, res) => {
+const selectCityById = async (req, res) => {
     const id = req.params.id
-    res.send('Sélection de la ville id=' + id)
+    try {
+        const row = await db.connexion.query('SELECT id, name FROM city WHERE id=' + id)
+        if (row.length === 0) {
+            res.status(404).send('Aucune ville n\'a été trouvée pour l\'id : ' + id)
+            return
+        }
+
+        res.send(row[0].name)
+    }
+    catch(err) {
+        res.status(500).send('Une erreur est survenue ! Code : ' + err)
+    }
 }
 
 /*********************************************************
