@@ -1,7 +1,7 @@
 const mariadb = require('mariadb')
 const objConn = {connexion: null}
 
-async function initConnect() {
+const initConnect = async () => {
     try {
         // Create a new connection
         const conn = await mariadb.createConnection({
@@ -19,5 +19,6 @@ async function initConnect() {
         console.log(`Erreur de connexion à la BDD (err=${err})`);
     }
 }
+initConnect()
 
-module.exports = { initConnect, objConn }
+module.exports = { objConn }
