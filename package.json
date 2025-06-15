@@ -4,7 +4,8 @@
   "description": "ecoworking express js",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon --env-file=.env NODE_ENV=production app.js",
+    "start": "node --env-file=data/.env app.js",
+    "dev": "nodemon --env-file=data/.dev.env app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "stéphane le pajolec",

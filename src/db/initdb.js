@@ -1,24 +1,29 @@
 const mariadb = require('mariadb')
-const objConn = {connexion: null}
+let db = {conn: null}
 
 const initConnect = async () => {
     try {
-        // Create a new connection
+        if(process.env.MARIADB_DATABASE === '') {
+            console.log('Erreur de connexion à la BDD (nom database vide)')
+            return
+        }
         const conn = await mariadb.createConnection({
             host: 'localhost',
-            port: '3306',
-            user: 'root',
-            password: '',
-            database: 'ecoworking'
+            port: process.env.MARIADB_PORT,
+            user: process.env.MARIADB_USER,
+            password: process.env.MARIADB_PASSWORD,
+            database: process.env.MARIADB_DATABASE
         })
-        objConn.connexion = conn
 
-        // Print connection thread
+        // objDb.conn = conn
+        db.conn = conn
         console.log(`Connexion à la BDD (threadId=${conn.threadId})`)
     } catch (err) {
-        console.log(`Erreur de connexion à la BDD (err=${err})`);
+        console.log(`Erreur de connexion à la BDD (err=${err})`)
     }
 }
+
+// Création de la connexion à la BDD
 initConnect()
 
-module.exports = { objConn }
+module.exports = db 

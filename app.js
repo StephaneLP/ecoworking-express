@@ -1,22 +1,30 @@
 const express = require('express')
-const morgan = require('morgan')
 const serveFavicon = require('serve-favicon')
+
 const app = express()
-const port = process.env.PORT || 3001
-console.log(process.env.NODE_ENV)
+
 /*********************************************************
-Requête : log date
+Middlewares
 *********************************************************/
 
-app
-  .use(morgan('dev'))
-  .use(serveFavicon(__dirname + '/favicon.png'))
-  .use((req, res, next) => {
-    const date = new Date();
-    const formattedDate = date.toLocaleString();
-    console.log('Time : ', formattedDate)
-    next()
-  })
+app.use(serveFavicon(__dirname + '/favicon.png'))
+
+/*********************************************************
+Middlewares spécifiques à l'environnement de développement
+*********************************************************/
+
+if (process.env.NODE_ENV === 'development') {
+  const morgan = require('morgan')
+
+  app
+    .use(morgan('dev'))
+    .use((req, res, next) => {
+      const date = new Date();
+      const formattedDate = date.toLocaleString();
+      console.log('Time : ', formattedDate)
+      next()
+    })
+}
 
 /*********************************************************
 Connexion BDD
@@ -38,13 +46,11 @@ app.use('/ecoworking/', routeEcoworking)
 Ouverture du port
 *********************************************************/
 
+const port = process.env.PORT || 3000
+
 app.listen(port, () => {
     console.log(`L'application est démarrée sur le port ${port}`)
 })
 
-console.log('--------------- test ---------------------------')
-
-const user = require('./src/tests/user.js');
-console.log(user);
-
-console.log('--------------- test ---------------------------')
+const log = require('./src/utils/log')
+log(`L'application est démarrée sur le port ${port}`)
