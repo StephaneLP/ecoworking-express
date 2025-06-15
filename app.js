@@ -1,5 +1,6 @@
 const express = require('express')
 const serveFavicon = require('serve-favicon')
+const log = require('./src/utils/log')
 
 const app = express()
 
@@ -18,12 +19,6 @@ if (process.env.NODE_ENV === 'development') {
 
   app
     .use(morgan('dev'))
-    .use((req, res, next) => {
-      const date = new Date();
-      const formattedDate = date.toLocaleString();
-      console.log('Time : ', formattedDate)
-      next()
-    })
 }
 
 /*********************************************************
@@ -49,8 +44,5 @@ Ouverture du port
 const port = process.env.PORT || 3000
 
 app.listen(port, () => {
-    console.log(`L'application est démarrée sur le port ${port}`)
+  log.addEvent(`L'application est démarrée sur le port ${port}`)
 })
-
-const log = require('./src/utils/log')
-log(`L'application est démarrée sur le port ${port}`)
