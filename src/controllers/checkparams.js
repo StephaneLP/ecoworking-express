@@ -3,8 +3,9 @@ const log = require('../utils/log')
 const checkParams = (model, datas) => {
     try{
         for (let key in datas) {
-            const objColumn = model[id1]
+            const objColumn = model[key]
 
+            
             
             console.log('OBJET', objColumn)
 
