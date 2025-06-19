@@ -14,36 +14,27 @@ const tableColumns = {
     }
 }
 
-const selectAll = async (params) => {
+const reqSELECT = async (params) => {
     const reqColumns = params.columns || '*'
-    const reqFrom = params.join || tableName
+    const reqTables = params.tables || tableName
     const reqOrder = params.order ? ` ORDER BY ${params.order}` : ''
-    const reqSql = `SELECT ${reqColumns} FROM ${reqFrom} ${reqOrder}`
+    let reqConditions = params.filter || ''
+    const reqParams = []
+
+    if (params.filter) {
+        reqConditions = ` WHERE ${params.filter[0]} ${params.filter[1]} ?`
+        reqParams.push(params.filter[2])
+    }
+
+    const reqSql = `SELECT ${reqColumns} FROM ${reqTables}${reqConditions}${reqOrder}`
 
     try {
-        const rows = await db.conn.query(reqSql)
+        const rows = await db.conn.query(reqSql, reqParams)
         return {success: true, rows: rows}
     }
     catch(err) {
-        return {success: false, err: err}
+        return {success: false, code: 500, error: err, message: 'Une erreur est survenue !'}
     }
 }
 
-const selectById = async (params) => {
-    const reqColumns = params.columns || '*'
-    const reqFrom = params.join || tableName
-    const reqOrder = params.order ? ` ORDER BY ${params.order}` : ''
-    const reqSql = `SELECT ${reqColumns} FROM ${reqFrom} ${reqOrder}`
-
-    try {
-        const rows = await db.conn.query(reqSql)
-        return {success: true, rows: rows}
-    }
-    catch(err) {
-        return {success: false, err: err}
-    }
-}
-
-
-
-module.exports = { tableColumns, selectAll }
+module.exports = { reqSELECT }

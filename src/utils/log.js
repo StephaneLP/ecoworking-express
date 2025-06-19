@@ -32,6 +32,6 @@ const logMessage = (type, msg) => {
 
 const addError = (msg) => logMessage('Error', msg)
 const addEvent = (msg) => logMessage('Event', msg)
-const addRequest = () => logMessage('Request', msg)
+const addRequest = (msg) => logMessage('Request', msg)
 
 module.exports = {addError, addEvent, addRequest}

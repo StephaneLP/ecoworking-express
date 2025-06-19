@@ -13,7 +13,8 @@ const initConnect = async () => {
             port: process.env.MARIADB_PORT,
             user: process.env.MARIADB_USER,
             password: process.env.MARIADB_PASSWORD,
-            database: process.env.MARIADB_DATABASE
+            database: process.env.MARIADB_DATABASE,
+            bigIntAsNumber: true,
         })
 
         // objDb.conn = conn

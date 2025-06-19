@@ -1,79 +1,49 @@
 const db = require('../db/initdb.js')
 const cityModel = require('../models/city.model')
-const checkParams = require('./checkparams')
 const log = require('../utils/log')
 
 /*********************************************************
 GET / READ / SELECT
 *********************************************************/
 
-const selectAllCity = async (req, res) => {
-    const sqlParams = {
-        columns: 'id, name',
-        order: 'name DESC'
-    }
-
+async function sqlSelect(res, params) {
     try {
-        const dbRes = await cityModel.selectAll(sqlParams)
+        const dbRes = await cityModel.reqSELECT(params)
 
-        if (dbRes.success) {
-            res.status(200).json(dbRes.rows)
-        }
-        else {
-            res.status(500).send('Une erreur est survenue !')
-            log.addError(`selectAll - 500 - ${dbRes.err}`)
-        }        
-    }
-    catch(err) {
-        res.status(500).send('Une erreur est survenue !')
-        log.addError(`selectAllCity - 500 - ${err}`)
-    }
-}
-
-const selectCityById = async (req, res) => {
-    const params = {
-        param: ['id', req.params.id],
-        columns: 'id, name',
-        order: 'name DESC'
-    }
-
-
-
-    // Paramètres
-    const objDatas = {id: req.params.id}
-
-    // 
-
-
-    checkParams(cityModel.model, objDatas)
-
-    const objSql = {
-        columns: 'id, name, created_at, updated_at',
-        tables: 'city',
-        filter: 'id=?',
-    }
-
-    const arrParams = [objDatas.id] // ! Même ordre que les '?' de la clause WHERE
-    const reqSQL = `SELECT ${objSql.columns} FROM ${objSql.tables} WHERE ${objSql.filter}`
-
-
-
-
-
-
-    try {
-        const row = await db.conn.query(reqSQL, arrParams)
-        if (row.length === 0) {
-            res.status(404).send('Aucune ville n\'a été trouvée !')
-            log.addError(`selectCityById - 404 - Aucune ville n'a été trouvée pour l'id : ${objDatas.id}`)
+        if (!dbRes.success) {
+            res.status(dbRes.code).send(dbRes.message)
+            log.addError(`[cityModel.reqSELECT - ${dbRes.code}] ${dbRes.error}`)
             return
         }
-        res.status(200).send(row)
+
+        res.status(200).json(dbRes.rows)
+        log.addRequest(`[cityController.sqlSelect - 200]`)
+       
     }
     catch(err) {
         res.status(500).send('Une erreur est survenue !')
-        log.addError(`selectCityById - 500 - ${err}`)
+        log.addError(`[cityController.sqlSelect - 500] ${err}`)
     }
 }
 
-module.exports = {selectAllCity, selectCityById}
+const selectAllCities = (req, res) => {
+    const params = {
+        columns: 'id, name',
+        order: 'name ASC'
+    }
+
+    sqlSelect(res, params)
+}
+
+const selectCityById = (req, res) => {
+    const params = {
+        columns: 'id, name, created_at, updated_at',
+        // filter: ['name', 'LIKE', '%ou%'],
+        filter: ['id', '=', req.params.id],
+        order: 'name ASC'
+    }
+
+    sqlSelect(res, params)
+}
+
+module.exports = {selectAllCities, selectCityById}
