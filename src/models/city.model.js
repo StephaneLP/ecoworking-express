@@ -33,7 +33,7 @@ const reqSELECT = async (params) => {
         return {success: true, rows: rows}
     }
     catch(err) {
-        return {success: false, code: 500, error: err, message: 'Une erreur est survenue !'}
+        return {success: false, error: err}
     }
 }
 
