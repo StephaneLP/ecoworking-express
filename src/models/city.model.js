@@ -28,12 +28,17 @@ const reqSELECT = async (params) => {
 
     const reqSql = `SELECT ${reqColumns} FROM ${reqTables}${reqConditions}${reqOrder}`
 
+    let conn
     try {
-        const rows = await db.conn.query(reqSql, reqParams)
+        conn = await db.getConnection()
+        const rows = await conn.query(reqSql, reqParams)
         return {success: true, rows: rows}
-    }
-    catch(err) {
+    } 
+    catch (err) {
         return {success: false, error: err}
+    } 
+    finally {
+        if (conn) conn.end()
     }
 }
 

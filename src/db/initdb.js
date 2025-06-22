@@ -1,31 +1,29 @@
 const log = require('../utils/log')
 const mariadb = require('mariadb')
-let db = {conn: null}
 
-const initConnect = async () => {
-    if(process.env.MARIADB_DATABASE === '') {
-        log.addError('Erreur de connexion à la BDD (nom database vide)')
-        return
-    }
+const pool = mariadb.createPool({
+     host: process.env.DB_HOST,
+     user: process.env.DB_USER,
+     password: process.env.DB_PASSWORD,
+     database: process.env.DB_DATABASE,
+     port: process.env.DB_PORT,
+     bigIntAsNumber: true,
+     connectionLimit: 5
+})
+
+const testConnect = async () => {
+    let conn;
     try {
-         const conn = await mariadb.createConnection({
-            host: 'localhost',
-            port: process.env.MARIADB_PORT,
-            user: process.env.MARIADB_USER,
-            password: process.env.MARIADB_PASSWORD,
-            database: process.env.MARIADB_DATABASE,
-            bigIntAsNumber: true,
-        })
-
-        // objDb.conn = conn
-        db.conn = conn
+        conn = await pool.getConnection();
         log.addEvent(`Connexion à la BDD (threadId=${conn.threadId})`)
-    } catch (err) {
+    } catch (err) { 
         log.addError(`Erreur de connexion à la BDD (err=${err})`)
+    } finally {
+        if (conn) conn.end()
     }
 }
 
-// Création de la connexion à la BDD
-initConnect()
+// Test de la connexion à la BDD
+testConnect()
 
-module.exports = db 
+module.exports = pool 
