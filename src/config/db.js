@@ -26,4 +26,4 @@ const testConnect = async () => {
 // Test de la connexion à la BDD
 testConnect()
 
-module.exports = pool 
+module.exports = pool

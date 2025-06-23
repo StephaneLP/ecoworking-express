@@ -4,8 +4,8 @@
   "description": "api ecoworking express js",
   "main": "app.js",
   "scripts": {
-    "start": "node --env-file=config/.env app.js",
-    "dev": "nodemon --env-file=config/.dev.env app.js",
+    "start": "node --env-file=.env app.js",
+    "dev": "nodemon --env-file=.dev.env app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "stéphane le pajolec",

@@ -1,7 +1,6 @@
 const express = require('express')
 const serveFavicon = require('serve-favicon')
 const log = require('./src/utils/log')
-
 const app = express()
 
 /*********************************************************
@@ -25,17 +24,17 @@ if (process.env.NODE_ENV === 'development') {
 Connexion BDD
 *********************************************************/
 
-require('./src/db/initdb.js')
+require('./src/config/db.js')
 
 /*********************************************************
 Routes
 *********************************************************/
 
-const routeCity = require('./src/routes/city')
-const routeEcoworking = require('./src/routes/ecoworking')
+const cityRoutes = require('./src/routes/city.routes.js')
+const ecoworkingRoutes = require('./src/routes/ecoworking.routes.js')
 
-app.use('/ville/', routeCity)
-app.use('/ecoworking/', routeEcoworking)
+app.use('/ville/', cityRoutes)
+app.use('/ecoworking/', ecoworkingRoutes)
 
 /*********************************************************
 Ouverture du port
