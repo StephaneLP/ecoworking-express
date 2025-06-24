@@ -8,7 +8,7 @@ GET / READ / SELECT
 
 const selectAllCities = async (req, res) => {
     const params = {
-        // columns: 'id, name',
+        columns: 'id, name',
         order: 'name ASC'
     }
 
@@ -40,11 +40,10 @@ const selectAllCities = async (req, res) => {
 
 const selectCityById = async (req, res) => {
     const params = {
-        columns: 'id, name, isActive, created_at, updated_at',
-        filters: [{name: 'id', op: '=', value: req.params.id}],
+        columns: 'id, name, is_active, created_at, updated_at',
+        filter: [{name: 'id', op: '=', value: req.params.id.trim()}],
         order: 'name ASC'
     }
-console.log('PARAM : ', req.params.id, ' ----- TYPE : ', typeof req.params.id)
 
     try {
         const dbReq = await cityModel.reqSELECT(params)
@@ -69,24 +68,6 @@ console.log('PARAM : ', req.params.id, ' ----- TYPE : ', typeof req.params.id)
 
         res.status(200).json(dbReq.rows)
         log.addRequest(`[cityController (selectCityById) - 200]`)
-
-console.log('-----------------------------------------------------------------------------')
-const ret = dbReq.rows
-console.log(ret)
-for (let key in ret[0]) {
-console.log('KEY : ', key, ' ----- VALUE : ', ret[0][key], ' ----- TYPE : ', typeof ret[0][key])
-}
-console.log('-----------------------------------------------------------------------------')
-const jsonret = JSON.stringify(dbReq.rows)
-console.log(jsonret)
-for (let key in ret[0]) {
-console.log('KEY : ', key, ' ----- VALUE : ', ret[0][key], ' ----- TYPE : ', typeof ret[0][key])
-}
-console.log('-----------------------------------------------------------------------------')
-
-
-
-
     }
     catch(err) {
         res.status(500).send('Erreur Serveur')

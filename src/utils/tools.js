@@ -7,4 +7,8 @@ function isInteger(str) {
     return res
 }
 
-module.exports = {isInteger}
+function isBoolean(val) {
+    return (typeof val === 'boolean') || (typeof val === 'number' && [0,1].includes(val)) || (typeof val === 'string' && ['0','1'].includes(val))
+}
+
+module.exports = {isInteger, isBoolean}
