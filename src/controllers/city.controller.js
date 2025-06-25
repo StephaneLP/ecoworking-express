@@ -1,4 +1,4 @@
-const db = require('../config/db.js')
+// const db = require('../config/db.js')
 const cityModel = require('../models/city.model')
 const log = require('../utils/log')
 
@@ -9,11 +9,12 @@ GET / READ / SELECT
 const selectAllCities = async (req, res) => {
     const params = {
         columns: 'id, name',
-        order: 'name ASC'
+        order: 'name ASC',
+        queryString: req.query
     }
 
     try {
-        const dbReq = await cityModel.reqSELECT(params)
+        const dbReq = await cityModel.read(params)
 
         if (!dbReq.success) {
             res.status(500).send('Erreur Serveur')
@@ -35,21 +36,19 @@ const selectAllCities = async (req, res) => {
         res.status(500).send('Erreur Serveur')
         log.addError(`[cityController (selectAllCities) - 500] ${err}`)
     }
-
 }
 
 const selectCityById = async (req, res) => {
     const params = {
         columns: 'id, name, is_active, created_at, updated_at',
-        filter: [{name: 'id', op: '=', value: req.params.id.trim()}],
-        order: 'name ASC'
+        pathParameter: {name: 'id', op: '=', value: req.params.id.trim()},
     }
 
     try {
-        const dbReq = await cityModel.reqSELECT(params)
+        const dbReq = await cityModel.read(params)
 
         if (!dbReq.success && dbReq.code == 400) {
-            res.status(500).send('Erreur Requête')
+            res.status(400).send('Erreur Requête')
             log.addError(`[cityModel (reqSELECT) - 400] ${dbReq.error}`)
             return
         }

@@ -1,89 +1,78 @@
 const db = require('../config/db.js')
-const {checkFilter} = require('./utils/models.tools')
+const {reqSELECT} = require('./utils/sql')
 
-const tableName = 'city'
-const tableColumns = {
-    id: {
-        type: 'integer',
-        nullAuthorized: false,
-        autoIncrement: true,
-    },
-    name: {
-        type: 'string',
-        lenght: 100,
-        emptyAuthorized: false,
-        nullAuthorized: false,
-    },
-    is_active: {
-        type: 'boolean',
-        nullAuthorized: false,
+const dbTableDef = {
+    tableName: 'city',
+    tableColumns: {
+        id: {
+            type: 'integer',
+            nullAuthorized: false,
+            autoIncrement: true,
+        },
+        name: {
+            type: 'string',
+            lenght: 100,
+            emptyAuthorized: false,
+            nullAuthorized: false,
+        },
+        is_active: {
+            type: 'boolean',
+            nullAuthorized: false,
+        }
     }
 }
 
-const reqSELECT = async (params) => {
-    const filter = params.filter
-
-
-    let reqConditions = ''
-    const reqParams = []
-
-    try {
-        if (filter) {
-            let columnConstraints, dataType
-
-            for (let condition of filter) {
-                columnConstraints = tableColumns[condition.name]
-                // if (!columnConstraints) return {success: false, code: 400, error: `Filtre absent du modèle (clé : ${filter.name})`}
-                dataType = columnConstraints.type
-            }
-
-            reqConditions = ` WHERE ${filter[0].name} ${filter[0].op} ?`
-            reqParams.push(filter[0].value)
-        }        
-    }
-    catch(err) {
-        return {success: false, code: 500, error: err}
-    }
-
-
-
-    const reqColumns = params.columns || '*'
-    const reqTables = params.tables || tableName
-    const reqOrder = params.order ? ` ORDER BY ${params.order}` : ''
-
-    const reqSql = `SELECT ${reqColumns} FROM ${reqTables}${reqConditions}${reqOrder}`
-console.log('REQUÊTE : ', reqSql, ' PARAMETRES : ', reqParams)
-    let conn
-    try {
-        conn = await db.getConnection()
-        const rows = await conn.query(reqSql, reqParams)
-        return {success: true, rows: rows}
-    } 
-    catch (err) {
-        return {success: false, code: 500, error: err}
-    } 
-    finally {
-        if (conn) conn.end()
-    }
+const read = (params) => {
+    return reqSELECT(params, dbTableDef)
 }
 
 
+// const read = async (params) => {
+//     let sqlWhereClause = ''
+//     const reqParams = []
 
+//     // Validation du Path Parameter et construction de la clause WHERE de la requête SQL
+//     const pathParameter = params.pathParameter
 
+//     if (pathParameter) {
+//         try{
+//             checkPathParameter(pathParameter, dbTableDef.tableColumns)
+//             sqlWhereClause = ` WHERE ${pathParameter.name} ${pathParameter.op} ?`
+//             reqParams.push(pathParameter.value)
+//         }
+//         catch(err) {
+//             return {success: false, code: 400, error: `Vérification du 'Path Parameter' (checkPathParameter) : ${err.message}`}
+//         }
+//     }
+    
+//     // Validation ses paramètres de la chaine queryString et construction de la clause WHERE de la requête SQL
+//     const queryString = params.queryString
 
+//     if (queryString) {
+//         console.log('queryString', queryString)
+//     }
 
+//     // Construction de la requête SQL
+//     const reqColumns = params.columns || '*'
+//     const reqTables = params.tables || dbTableDef.tableName
+//     const reqOrder = params.order ? ` ORDER BY ${params.order}` : ''
 
+//     const reqSql = `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}${reqOrder}`
 
-
-
-
-
-
-
-
-
-
-
+//     // Éxecution de la requête SQL envoi du résultat au contrôleur
+//     let conn
+//     try {
+//         conn = await db.getConnection()
+//         const rows = await conn.query(reqSql, reqParams)
+//         return {success: true, rows: rows}
+//     } 
+//     catch (err) {
+//         return {success: false, code: 500, error: err}
+//     } 
+//     finally {
+//         if (conn) conn.end()
+//     }
+// }
 
 const reqINSERT = async (params) => {
     let reqConditions = ''
@@ -94,7 +83,7 @@ const reqINSERT = async (params) => {
         if (filters) {
             let columnConstraints, dataType
             for (let filter of filters) {
-                columnConstraints = tableColumns[filter.name]
+                columnConstraints = dbTableColumns[filter.name]
                 // if (!columnConstraints) return {success: false, code: 400, error: `Filtre absent du modèle (clé : ${filter.name})`}
                 dataType = columnConstraints.type
                 console.log(columnConstraints, dataType)
@@ -109,7 +98,7 @@ const reqINSERT = async (params) => {
     }
 
     const reqColumns = params.columns || '*'
-    const reqTables = params.tables || tableName
+    const reqTables = params.tables || dbT
     const reqOrder = params.order ? ` ORDER BY ${params.order}` : ''
 
     const reqSql = `SELECT ${reqColumns} FROM ${reqTables}${reqConditions}${reqOrder}`
@@ -128,4 +117,45 @@ const reqINSERT = async (params) => {
     }
 }
 
-module.exports = { reqSELECT, reqINSERT }
+module.exports = { read, reqINSERT }
+
+
+    // Construction de la clause WHERE et du tableau contenant les paramètres
+
+    // let sqlWhereClause = ''
+    // const reqParams = []
+
+    // if (filter) {
+    //     try {
+    //         for (let condition of filter) {
+    //             // columnConstraints = dbTableColumns[condition.name]
+    //             // if (!columnConstraints) return {success: false, code: 400, error: `Filtre absent du modèle (clé : ${filter.name})`}
+    //             // dataType = columnConstr.type
+    //         }
+    //     }
+    //     catch(err) {
+
+
+
+
+    //     }
+    // }
+    // let reqConditions = ''
+
+    // try {
+    //     if (pathParameter) {
+    //         let columnConstraints, dataType
+
+    //         for (let condition of pathParameter) {
+    //             columnConstraints = dbTableColumns[condition.name]
+    //             // if (!columnConstraints) return {success: false, code: 400, error: `Filtre absent du modèle (clé : ${filter.name})`}
+    //             dataType = columnConstraints.type
+    //         }
+
+    //         reqConditions = ` WHERE ${pathParameter[0].name} ${pathParameter[0].op} ?`
+    //         reqParams.push(pathParameter[0].value)
+    //     }        
+    // }
+    // catch(err) {
+    //     return {success: false, code: 500, error: err}
+    // }
