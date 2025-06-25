@@ -36,7 +36,7 @@ const reqSELECT = async (params, dbTableDef) => {
     const reqOrder = params.order ? ` ORDER BY ${params.order}` : ''
     const reqSql = `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}${reqOrder}`
 
-    // Éxecution de la requête SQL envoi du résultat au contrôleur
+    // Éxecution de la requête SQL, envoi du résultat au contrôleur
     let conn
     try {
         conn = await db.getConnection()
