@@ -2,7 +2,11 @@ const express = require('express')
 const router = express.Router()
 const cityController = require('../controllers/city.controller')
 
-router.get('/', cityController.selectAllCities)
-router.get('/:id', cityController.selectCityById)
+router.route('/')
+    .get(cityController.readCities)
+
+router.route('/:id')    
+    .get(cityController.readCityById)
+    .delete(cityController.deleteCityById)
 
 module.exports = router

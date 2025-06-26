@@ -1,5 +1,6 @@
-const db = require('../config/db.js')
-const {reqSELECT} = require('./utils/sql')
+const db = require('../config/db')
+const {checkPathParameter} = require('./common/validation')
+const {reqSELECT, reqSELECTBYID, reqDELETEBYID} = require('./common/sql')
 
 const dbTableDef = {
     tableName: 'city',
@@ -22,11 +23,37 @@ const dbTableDef = {
     }
 }
 
-const read = (params) => {
+/*********************************************************
+SELECT
+*********************************************************/
+
+const sqlSelect = (params) => {
+
+
+
+
     return reqSELECT(params, dbTableDef)
 }
 
-module.exports = {read}
+const sqlSelectById = (params) => {
+    try {
+        checkPathParameter(params.pathParameter, dbTableDef.tableColumns)
+    }
+    catch(err) {
+        
+    }
+
+    return reqSELECTBYID(params, dbTableDef)
+}
+/*********************************************************
+DELETE
+*********************************************************/
+
+const sqlDeleteById = (params) => {
+    return reqDELETEBYID(params, dbTableDef)
+}
+
+module.exports = {sqlSelect, sqlSelectById, sqlDeleteById}
 
 
 
