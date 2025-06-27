@@ -4,70 +4,29 @@ const log = require('../../utils/log')
 READ
 *********************************************************/
 
-const readRecords = (model, params) => {
+const readRecords = (mode, model, params) => {
     return async (req, res) => {
         try {
-            const dbReq = await model.sqlSelect(params)
+            const dbReq = (mode === 'all') ? await model.runSelect(params) : await model.runSelectById(params)
 
-            if (!dbReq.success && dbReq.code == 400) {
+            if (!dbReq.success) {
                 res.status(400).send('Erreur Requête')
-                log.addError(`[${params.libelles.method} (sql.js/select) - 400] ${dbReq.error}`)
-                return
-            }
-
-            if (!dbReq.success && dbReq.code == 500) {
-                res.status(500).send('Erreur Serveur')
-                log.addError(`[${params.libelles.method} (sql.js/select) - 500] ${dbReq.error}`)
-                return
+                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
+                return                
             }
 
             if (dbReq.rows.length == 0) {
                 res.status(404).send(params.libelles.fail)
-                log.addError(`[${params.libelles.method} (crud.js/read) - 404] Résultat de la requête : tableau vide`)
+                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Pas de résultat (tableau vide)`)
                 return
             }
 
             res.status(200).json(dbReq.rows)
-            log.addRequest(`[${params.libelles.method} - 200]`)
-        
+            log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method}`)
         }
         catch(err) {
             res.status(500).send('Erreur Serveur')
-            log.addError(`[${params.libelles.method} (crud.js/read) - 500] ${err}`)
-        }
-    }
-}
-
-const readRecordById = (model, params) => {
-    return async (req, res) => {
-        try {
-            const dbReq = await model.sqlSelectById(params)
-
-            if (!dbReq.success && dbReq.code == 400) {
-                res.status(400).send('Erreur Requête')
-                log.addError(`[${params.libelles.method} (sql.js/select) - 400] ${dbReq.error}`)
-                return
-            }
-
-            if (!dbReq.success && dbReq.code == 500) {
-                res.status(500).send('Erreur Serveur')
-                log.addError(`[${params.libelles.method} (sql.js/select) - 500] ${dbReq.error}`)
-                return
-            }
-
-            if (dbReq.rows.length == 0) {
-                res.status(404).send(params.libelles.fail)
-                log.addError(`[${params.libelles.method} (crud.js/read) - 404] Résultat de la requête : tableau vide`)
-                return
-            }
-
-            res.status(200).json(dbReq.rows)
-            log.addRequest(`[${params.libelles.method} - 200]`)
-        
-        }
-        catch(err) {
-            res.status(500).send('Erreur Serveur')
-            log.addError(`[${params.libelles.method} (crud.js/read) - 500] ${err}`)
+            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
         }
     }
 }
@@ -79,34 +38,28 @@ DELETE
 const deleteRecord = (model, params) => {
     return async (req, res) => {
         try {
-            const dbReq = await model.sqlDeleteById(params)
+            const dbReq = await model.runDeleteById(params)
 
-            if (!dbReq.success && dbReq.code == 400) {
+            if (!dbReq.success) {
                 res.status(400).send('Erreur Requête')
-                log.addError(`[${params.libelles.method} (sql.js/delete) - 400] ${dbReq.error}`)
-                return
-            }
-
-            if (!dbReq.success && dbReq.code == 500) {
-                res.status(500).send('Erreur Serveur')
-                log.addError(`[${params.libelles.method} (sql.js/delete) - 500] ${dbReq.error}`)
-                return
+                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
+                return                
             }
 
             if (dbReq.result.affectedRows === 0) {
                 res.status(404).send(params.libelles.fail)
-                log.addError(`[${params.libelles.method} (crud.js/read) - 404] Résultat de la requête : pas de ligne supprimée (id : ${params.pathParameter.value})`)
+                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Aucune ligne supprimée (id : ${params.pathParameter.value})`)
                 return
             }
 
             res.status(200).json(params.libelles.success)
-            log.addRequest(`[${params.libelles.method} - 200]`)
+            log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method} ; Message : ${dbReq.result.affectedRows} ligne(s) supprimée(s)`)
         }
         catch(err) {
             res.status(500).send('Erreur Serveur')
-            log.addError(`[${params.libelles.method} (crud.js/delete) - 500] ${err}`)            
+            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)            
         }
     }
 }
 
-module.exports = {readRecords, readRecordById, deleteRecord}
+module.exports = {readRecords, deleteRecord}

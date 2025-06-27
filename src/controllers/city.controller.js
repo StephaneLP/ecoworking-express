@@ -11,12 +11,12 @@ const readCities = (req, res) => {
         order: 'name ASC',
         queryString: req.query,
         libelles: {
-            method: 'selectAllCities',
+            method: 'readCities',
             fail: 'Aucune ville n\'a été trouvée',
         }
     }
 
-    readRecords(cityModel, params)(req, res)
+    readRecords('all', cityModel, params)(req, res)
 }
 
 const readCityById = (req, res) => {
@@ -24,12 +24,12 @@ const readCityById = (req, res) => {
         columns: 'id, name, is_active, created_at, updated_at',
         pathParameter: {name: 'id', op: '=', value: req.params.id.trim()},
         libelles: {
-            method: 'selectCityById',
+            method: 'readCityById',
             fail: 'Aucune ville n\'a été trouvée',
         }
     }
 
-    readRecordById(cityModel, params)(req, res)
+    readRecords('byId', cityModel, params)(req, res)
 }
 
 /*********************************************************
