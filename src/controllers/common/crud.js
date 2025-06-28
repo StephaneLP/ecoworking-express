@@ -6,8 +6,14 @@ READ
 
 const readRecords = (mode, model, params) => {
     return async (req, res) => {
+        let dbReq
         try {
-            const dbReq = (mode === 'all') ? await model.runSelect(params) : await model.runSelectById(params)
+            if (mode === 'all') {
+                dbReq = await model.runSelect(params)
+            }
+            else {
+                dbReq = await model.querySelectById(params)
+            }
 
             if (!dbReq.success) {
                 res.status(400).send('Erreur Requête')
@@ -15,13 +21,13 @@ const readRecords = (mode, model, params) => {
                 return                
             }
 
-            if (dbReq.rows.length == 0) {
+            if (dbReq.result.length == 0) {
                 res.status(404).send(params.libelles.fail)
                 log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Pas de résultat (tableau vide)`)
                 return
             }
 
-            res.status(200).json(dbReq.rows)
+            res.status(200).json(dbReq.result)
             log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method}`)
         }
         catch(err) {
