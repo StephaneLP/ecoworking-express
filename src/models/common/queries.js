@@ -44,7 +44,7 @@ const runQuerySelectById = (dbTableDef, params) => {
 DELETE
 *********************************************************/
 
-const runQueryDeleteById = (params, dbTableDef) => {
+const runQueryDeleteById = (dbTableDef, params) => {
     try {
         // Validation du Path Parameter
         const check = checkPathParameter(params.pathParameter, dbTableDef.tableColumns)

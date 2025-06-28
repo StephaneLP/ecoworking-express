@@ -63,10 +63,10 @@ const readRecordById = (tableDef, params) => {
 DELETE
 *********************************************************/
 
-const deleteRecordById = (model, params) => {
+const deleteRecordById = (tableDef, params) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runDeleteById(params)
+            const dbReq = await queries.runQueryDeleteById(tableDef, params)
 
             if (!dbReq.success) {
                 res.status(400).send('Erreur Requête')
