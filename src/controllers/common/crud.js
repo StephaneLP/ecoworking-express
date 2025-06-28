@@ -1,19 +1,41 @@
 const log = require('../../utils/log')
+const queries = require('../../models/queries')
 
 /*********************************************************
 READ
 *********************************************************/
 
-const readRecords = (mode, model, params) => {
+const readRecords = (tableDef, params) => {
     return async (req, res) => {
-        let dbReq
         try {
-            if (mode === 'all') {
-                dbReq = await model.runSelect(params)
+            const dbReq = await runQuerySelect(tableDef, params)
+
+            if (!dbReq.success) {
+                res.status(400).send('Erreur Requête')
+                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
+                return                
             }
-            else {
-                dbReq = await model.querySelectById(params)
+
+            if (dbReq.result.length == 0) {
+                res.status(404).send(params.libelles.fail)
+                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Pas de résultat (tableau vide)`)
+                return
             }
+
+            res.status(200).json(dbReq.result)
+            log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method}`)
+        }
+        catch(err) {
+            res.status(500).send('Erreur Serveur')
+            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
+        }
+    }
+}
+
+const readRecordById = (tableDef, params) => {
+    return async (req, res) => {
+        try {
+            const dbReq = await queries.runQuerySelectById(tableDef, params)
 
             if (!dbReq.success) {
                 res.status(400).send('Erreur Requête')
@@ -41,10 +63,10 @@ const readRecords = (mode, model, params) => {
 DELETE
 *********************************************************/
 
-const deleteRecord = (model, params) => {
+const deleteRecordById = (model, params) => {
     return async (req, res) => {
         try {
-            const dbReq = await model.runDeleteById(params)
+            const dbReq = await queries.runDeleteById(params)
 
             if (!dbReq.success) {
                 res.status(400).send('Erreur Requête')
@@ -68,4 +90,4 @@ const deleteRecord = (model, params) => {
     }
 }
 
-module.exports = {readRecords, deleteRecord}
+module.exports = {readRecords, readRecordById, deleteRecordById}

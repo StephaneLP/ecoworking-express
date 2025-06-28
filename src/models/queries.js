@@ -1,6 +1,10 @@
-const db = require('../../config/db.js')
-const {checkPathParameter} = require('./validation')
-const {buildSqlSelectById, buildSqlDeleteById} = require('./building')
+const db = require('../config/db.js')
+const build = require('./tools/build.js')
+const {checkPathParameter} = require('./tools/validate.js')
+
+/*********************************************************
+ÉXECUTION DE LA REQUÊTE
+*********************************************************/
 
 const runQuery = async (sql) => {
     let conn
@@ -21,14 +25,14 @@ const runQuery = async (sql) => {
 SELECT
 *********************************************************/
 
-const runQuerySelectById = (params, dbTableDef) => {
+const runQuerySelectById = (dbTableDef, params) => {
     try {
         // Validation du Path Parameter
         const check = checkPathParameter(params.pathParameter, dbTableDef.tableColumns)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
-        const sql = buildSqlSelectById(params, dbTableDef.tableName)
+        const sql = build.sqlSelectById(params, dbTableDef.tableName)
         return runQuery(sql)
     }
     catch(err) {
@@ -47,7 +51,7 @@ const runQueryDeleteById = (params, dbTableDef) => {
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
-        const sql = buildSqlDeleteById(params, dbTableDef.tableName)
+        const sql = build.sqlDeleteById(params, dbTableDef.tableName)
         return runQuery(sql)
     }
     catch(err) {

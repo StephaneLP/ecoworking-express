@@ -1,5 +1,5 @@
-const cityModel = require('../models/city.model')
-const {readRecords, readRecordById, deleteRecord} = require('./common/crud')
+const {cityTableDef} = require('../models/model.city')
+const crud = require('./common/crud')
 
 /*********************************************************
 GET / READ / SELECT
@@ -16,7 +16,7 @@ const readCities = (req, res) => {
         }
     }
 
-    readRecords('all', cityModel, params)(req, res)
+    crud.readRecords(cityTableDef, params)(req, res)
 }
 
 const readCityById = (req, res) => {
@@ -29,7 +29,7 @@ const readCityById = (req, res) => {
         }
     }
 
-    readRecords('byId', cityModel, params)(req, res)
+    crud.readRecordById(cityTableDef, params)(req, res)
 }
 
 /*********************************************************
@@ -46,7 +46,7 @@ const deleteCityById = (req, res) => {
         }
     }
 
-    deleteRecord(cityModel, params)(req, res)
+    crud.deleteRecordById(cityTableDef, params)(req, res)
 }
 
 module.exports = {readCities, readCityById, deleteCityById}
