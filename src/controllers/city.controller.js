@@ -1,4 +1,4 @@
-const {cityTableDef} = require('../models/model.city')
+const {cityTableDef} = require('../models/city.model')
 const crud = require('./common/crud')
 
 /*********************************************************

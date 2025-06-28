@@ -1,5 +1,5 @@
 const log = require('../../utils/log')
-const queries = require('../../models/queries')
+const queries = require('../../models/common/queries')
 
 /*********************************************************
 READ

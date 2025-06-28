@@ -1,6 +1,6 @@
-const db = require('../config/db.js')
-const build = require('./tools/build.js')
-const {checkPathParameter} = require('./tools/validate.js')
+const db = require('../../config/db.js')
+const build = require('./build.js')
+const {checkPathParameter} = require('./validate.js')
 
 /*********************************************************
 ÉXECUTION DE LA REQUÊTE
