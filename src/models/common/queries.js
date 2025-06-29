@@ -1,6 +1,6 @@
 const db = require('../../config/db.js')
 const build = require('./build.js')
-const {checkPathParameter} = require('./validate.js')
+const {checkPathParameter, checkQueryString} = require('./validate.js')
 
 /*********************************************************
 ÉXECUTION DE LA REQUÊTE
@@ -24,6 +24,21 @@ const runQuery = async (sql) => {
 /*********************************************************
 SELECT
 *********************************************************/
+
+const runQuerySelect = (dbTableDef, params) => {
+    try {
+        // Validation du Path Parameter
+        const check = checkQueryString(params.queryString, dbTableDef.tableColumns)
+        if (!check.success) return check
+
+        // Construction et éxecution de la requête SQL
+        const sql = build.sqlSelectById(params, dbTableDef.tableName)
+        return runQuery(sql)
+    }
+    catch(err) {
+        throw new Error(`${err.message}`)
+    }        
+}
 
 const runQuerySelectById = (dbTableDef, params) => {
     try {
@@ -59,4 +74,4 @@ const runQueryDeleteById = (dbTableDef, params) => {
     }     
 }
 
-module.exports = {runQuerySelectById, runQueryDeleteById}
+module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById}

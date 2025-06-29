@@ -8,7 +8,7 @@ READ
 const readRecords = (tableDef, params) => {
     return async (req, res) => {
         try {
-            const dbReq = await runQuerySelect(tableDef, params)
+            const dbReq = await queries.runQuerySelect(tableDef, params)
 
             if (!dbReq.success) {
                 res.status(400).send('Erreur Requête')

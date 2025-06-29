@@ -16,6 +16,10 @@ const cityTableDef = {
             type: 'boolean',
             nullAuthorized: false,
         }
+    },
+    alias: {
+        ville: 'name',
+        active: 'is_active',
     }
 }
 

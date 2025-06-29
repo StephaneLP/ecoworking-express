@@ -32,6 +32,44 @@ const checkPathParameter = (param, columns) => {
     }
 }
 
+const checkQueryString = (param, columns) => {
+
+    // if (!param || !param.name || !param.op || !param.value) {
+    //     return {success: false, msg: `La chaîne PathParameter est vide/incomplète`}
+    // }
+    try {
+        if(param) {
+
+
+
+
+
+        }
+        // const constraint = columns[param.name]
+        // const dataType = constraint.type
+
+        // switch (dataType) {
+        //     case 'integer':
+        //         if (!isInteger(param.value)) {
+        //             return {success: false, method: 'checkPathParameter', msg: `Erreur type de donnée pathParameter (colonne '${param.name}', type 'integer' attendu)`}
+        //         }
+        //         break
+        //     case 'string':
+        //         if (param.value.lenght > constraint.lenght) {
+        //             return {success: false, method: 'checkPathParameter', msg: `Erreur longueur du pathParameter (colonne '${param.name}', string longueur max : ${constraint.lenght})`}
+        //         }
+        //         break
+        // }
+        // if ((dataType === 'string' && param.value.lenght == 0 )|| param.value == null) {
+        //     return {success: false, method: 'checkPathParameter', msg: `Erreur valeur du pathParameter (colonne '${param.name}', 'null', 'undefined' et chaine vide non authorisés)`}
+        // }
+
+        return {success: true}
+    }
+    catch(err) {
+        throw new Error(`checkPathParameter - ${err.name} (${err.message})`)
+    }
+}
 
 // const checkFilter = (columns, arrFilter) => {
 //     let constraint, dataType
@@ -59,4 +97,4 @@ const checkPathParameter = (param, columns) => {
 //     }
 // }
 
-module.exports = {checkPathParameter}
+module.exports = {checkPathParameter, checkQueryString}
