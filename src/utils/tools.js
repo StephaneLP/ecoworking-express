@@ -8,7 +8,7 @@ function isInteger(str) {
 }
 
 function isBoolean(val) {
-    return (typeof val === 'boolean') || (typeof val === 'number' && [0,1].includes(val)) || (typeof val === 'string' && ['0','1'].includes(val))
+    return (typeof val === 'boolean') || (typeof val === 'number' && [0,1].includes(val)) || (typeof val === 'string' && ['0','1','true','false'].includes(val))
 }
 
 module.exports = {isInteger, isBoolean}

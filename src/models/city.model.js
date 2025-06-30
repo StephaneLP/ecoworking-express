@@ -8,7 +8,7 @@ const cityTableDef = {
         },
         name: {
             type: 'string',
-            lenght: 100,
+            length: 100,
             emptyAuthorized: false,
             nullAuthorized: false,
         },

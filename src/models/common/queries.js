@@ -28,11 +28,11 @@ SELECT
 const runQuerySelect = (dbTableDef, params) => {
     try {
         // Validation du Path Parameter
-        const check = checkQueryString(params.queryString, dbTableDef.tableColumns)
+        const check = checkQueryString(params.queryStringParams, dbTableDef.tableColumns)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
-        const sql = build.sqlSelectById(params, dbTableDef.tableName)
+        const sql = build.sqlSelect(params, dbTableDef.tableName)
         return runQuery(sql)
     }
     catch(err) {
@@ -43,7 +43,7 @@ const runQuerySelect = (dbTableDef, params) => {
 const runQuerySelectById = (dbTableDef, params) => {
     try {
         // Validation du Path Parameter
-        const check = checkPathParameter(params.pathParameter, dbTableDef.tableColumns)
+        const check = checkPathParameter(params.pathParam, dbTableDef.tableColumns)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
@@ -62,7 +62,7 @@ DELETE
 const runQueryDeleteById = (dbTableDef, params) => {
     try {
         // Validation du Path Parameter
-        const check = checkPathParameter(params.pathParameter, dbTableDef.tableColumns)
+        const check = checkPathParameter(params.pathParam, dbTableDef.tableColumns)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
