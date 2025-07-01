@@ -1,14 +1,24 @@
-function isInteger(str) {
+function stringAsInteger(str) {
     const numbers = ['0','1','2','3','4','5','6','7','8','9']
-    let res = true
+
     for (let el of str) {
-        if (!numbers.includes(el.toString())) return false
+        if (!numbers.includes(el)) return false
     }
-    return res
+    return true
 }
 
-function isBoolean(val) {
-    return (typeof val === 'boolean') || (typeof val === 'number' && [0,1].includes(val)) || (typeof val === 'string' && ['0','1','true','false'].includes(val))
+function stringAsBoolean(str) {
+
+    return ['0','1','true','false'].includes(str.toLowerCase())
 }
 
-module.exports = {isInteger, isBoolean}
+function trimObjectValues(reqQuery) {
+    const query = {}
+    
+    Object.entries(reqQuery).forEach(e => {
+        query[e[0]] = e[1].trim()
+    })
+    return query
+}
+
+module.exports = {stringAsInteger, stringAsBoolean, trimObjectValues}

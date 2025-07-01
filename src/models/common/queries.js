@@ -1,6 +1,6 @@
 const db = require('../../config/db.js')
 const build = require('./build.js')
-const {checkPathParameter, checkQueryString} = require('./validate.js')
+const {checkURIParam, checkQueryString} = require('./validate.js')
 
 /*********************************************************
 ÉXECUTION DE LA REQUÊTE
@@ -43,7 +43,7 @@ const runQuerySelect = (dbTableDef, params) => {
 const runQuerySelectById = (dbTableDef, params) => {
     try {
         // Validation du Path Parameter
-        const check = checkPathParameter(params.pathParam, dbTableDef.tableColumns)
+        const check = checkURIParam(params.pathParam, dbTableDef.tableColumns)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
@@ -62,7 +62,7 @@ DELETE
 const runQueryDeleteById = (dbTableDef, params) => {
     try {
         // Validation du Path Parameter
-        const check = checkPathParameter(params.pathParam, dbTableDef.tableColumns)
+        const check = checkURIParam(params.pathParam, dbTableDef.tableColumns)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL

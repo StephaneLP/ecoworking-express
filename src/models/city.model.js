@@ -19,7 +19,6 @@ const cityTableDef = {
     },
     alias: {
         ville: 'name',
-        active: 'is_active',
     }
 }
 

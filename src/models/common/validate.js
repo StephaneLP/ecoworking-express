@@ -1,6 +1,10 @@
-const {isInteger, isBoolean} = require('../../utils/tools')
+const {stringAsInteger, stringAsBoolean} = require('../../utils/tools')
 
-const checkPathParameter = (pathParam, columns) => {
+/*********************************************************
+PARAMETRE PASSÉ PAR L'URL : PATH PARAM (URI PARAM)
+*********************************************************/
+
+const checkURIParam = (pathParam, columns) => {
 
     if (!pathParam || !pathParam.column || !pathParam.op || !pathParam.value) {
         return {success: false, msg: `La chaîne PathParameter est vide/incomplète`}
@@ -11,61 +15,86 @@ const checkPathParameter = (pathParam, columns) => {
 
         switch (dataType) {
             case 'integer':
-                if (!isInteger(pathParam.value)) {
-                    return {success: false, method: 'checkPathParameter', msg: `Erreur type de donnée pathParameter (colonne '${pathParam.column}', type 'integer' attendu)`}
+                if (!stringAsInteger(pathParam.value)) {
+                    return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur type de donnée (colonne '${pathParam.column}', type 'integer' attendu)`}
                 }
                 pathParam.value = Number(pathParam.value)
                 break
             case 'string':
                 if (pathParam.value.length > constraint.length) {
-                    return {success: false, method: 'checkPathParameter', msg: `Erreur longueur du pathParameter (colonne '${pathParam.column}', string longueur max : ${constraint.length})`}
+                    return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur longueur (colonne '${pathParam.column}', longueur max : ${constraint.length})`}
                 }
                 break
-        }
-
-        if ((dataType === 'string' && pathParam.value.lenght == 0 )|| pathParam.value == null) {
-            return {success: false, method: 'checkPathParameter', msg: `Erreur valeur du pathParameter (colonne '${pathParam.column}', 'null', 'undefined' et chaine vide non authorisés)`}
         }
 
         return {success: true}
     }
     catch(err) {
-        throw new Error(`checkPathParameter - ${err.name} (${err.message})`)
+        throw new Error(`checkURIParam - ${err.name} (${err.message})`)
+    }
+}
+
+/*********************************************************
+PARAMETRES PASSÉS PAR L'URL : QUERY STRING
+*********************************************************/
+
+const checkParam = (constraint, param) => {
+    switch (constraint.type) {
+        case 'integer':
+            if (!stringAsInteger(param.value)) {
+                return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
+            }
+            param.value = Number(param.value)
+            break
+        case 'string':
+            if (param.value.length > constraint.length) {
+                return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur longueur (colonne '${param.column}', string longueur max : ${constraint.length})`}
+            }
+            break
+        case 'boolean':
+            if (!stringAsBoolean(param.value)) {
+                return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
+            }
+            param.value = ['1', 'true'].includes(param.value.toLowerCase())
+            break
     }
 }
 
 const checkQueryString = (queryStringParams, columns) => {
     try {
         if(queryStringParams) {
-            let constraint, dataType
+            let constraint, op
 
             for (let param of queryStringParams) {
                 constraint = columns[param.column]
-                dataType = constraint.type
-
-                switch (dataType) {
-                    case 'integer':
-                        if (!isInteger(param.value)) {
-                            return {success: false, method: 'checkQueryString', msg: `Erreur type de donnée (queryString)paramètre (colonne '${param.column}', type 'integer' attendu)`}
-                        }
-                        param.value = Number(param.value)
-                        break
-                    case 'string':
-                        if (param.value.length > constraint.length) {
-                            return {success: false, method: 'checkQueryString', msg: `Erreur longueur du (queryString)paramètre (colonne '${param.column}', string longueur max : ${constraint.length})`}
-                        }
-                        break
-                    case 'boolean':
-                        if (!isBoolean(param.value)) {
-                            return {success: false, method: 'checkQueryString', msg: `Erreur type de donnée (queryString)paramètre (colonne '${param.column}', type 'boolean' attendu)`}
-                        }
-                        if (typeof param.value === 'string') param.value = ['1', 'true'].includes(param.value.toLowerCase())
-                        break
+                op = param.op
+                if (op === 'IN') {
+                    
                 }
 
-                if ((dataType === 'string' && param.value.lenght == 0 )|| param.value == null) {
-                    return {success: false, method: 'checkQueryString', msg: `Erreur valeur du (queryString)paramètre (colonne '${param.column}', 'null', 'undefined' et chaine vide non authorisés)`}
-                }
+
+console.log('op', op)
+                checkParam(constraint, param)
+
+                // switch (dataType) {
+                //     case 'integer':
+                //         if (!stringAsInteger(param.value)) {
+                //             return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
+                //         }
+                //         param.value = Number(param.value)
+                //         break
+                //     case 'string':
+                //         if (param.value.length > constraint.length) {
+                //             return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur longueur (colonne '${param.column}', string longueur max : ${constraint.length})`}
+                //         }
+                //         break
+                //     case 'boolean':
+                //         if (!stringAsBoolean(param.value)) {
+                //             return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
+                //         }
+                //         param.value = ['1', 'true'].includes(param.value.toLowerCase())
+                //         break
+                // }
             }
         }
 
@@ -76,4 +105,13 @@ const checkQueryString = (queryStringParams, columns) => {
     }
 }
 
-module.exports = {checkPathParameter, checkQueryString}
+// POUR BODY :
+
+// const nullAutorized = constraint.nullAutorized
+// const emptyAuthorized = constraint.emptyAuthorized
+
+// if ((dataType === 'string' && pathParam.value.lenght == 0 )|| pathParam.value == null) {
+//     return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur valeur (colonne '${pathParam.column}', 'null', 'undefined' et chaine vide non authorisés)`}
+// }
+
+module.exports = {checkURIParam, checkQueryString}

@@ -1,4 +1,5 @@
 const {cityTableDef} = require('../models/city.model')
+const {trimObjectValues} = require('../utils/tools')
 const crud = require('./common/crud')
 
 /*********************************************************
@@ -6,15 +7,18 @@ GET / READ / SELECT
 *********************************************************/
 
 const readCities = (req, res) => {
+    const query = trimObjectValues(req.query)
+
     // Clause WHERE : Filtres (conditions)
     const arrParams = []
-    if(req.query.ville) arrParams.push({column: 'name', op: 'LIKE', value: `${req.query.ville.trim()}`, pattern: '%?%'})
-    if(req.query.active) arrParams.push({column: 'is_active', op: '=', value: req.query.active.trim()})
+    if(query.key) arrParams.push({column: 'id', op: 'IN', value: `$query.key}`})
+    if(query.ville) arrParams.push({column: 'name', op: 'LIKE', value: `${query.ville}`, pattern: '%?%'})
+    if(query.active) arrParams.push({column: 'is_active', op: '=', value: query.active})
 
     // Clause ORDER BY
-    let direction = req.query.dir || ''
+    let direction = query.dir || ''
     direction = direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
-    const sort = {column: cityTableDef.alias[req.query.sort] || 'name', direction: direction}
+    const sort = {column: cityTableDef.alias[query.sort] || 'name', direction: direction}
 
     const params = {
         columns: 'id, name',
