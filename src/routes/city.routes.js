@@ -4,6 +4,7 @@ const cityController = require('../controllers/city.controller')
 
 router.route('/')
     .get(cityController.readCities)
+    .post(cityController.createCity)
 
 router.route('/:id')    
     .get(cityController.readCityById)

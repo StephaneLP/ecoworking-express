@@ -67,7 +67,7 @@ const deleteRecordById = (tableDef, params) => {
     return async (req, res) => {
         try {
             const dbReq = await queries.runQueryDeleteById(tableDef, params)
-console.log('DELETE : ', params)
+
             if (!dbReq.success) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
                 log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
@@ -90,4 +90,20 @@ console.log('DELETE : ', params)
     }
 }
 
-module.exports = {readRecords, readRecordById, deleteRecordById}
+/*********************************************************
+CREATE
+*********************************************************/
+
+const createRecord = (tableDef, params) => {
+    return async (req, res) => {
+        try {
+            const dbReq = await queries.runQueryInsert(tableDef, params)
+        }
+        catch(err) {
+            res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
+            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
+        }
+    }
+}
+
+module.exports = {readRecords, readRecordById, deleteRecordById, createRecord}

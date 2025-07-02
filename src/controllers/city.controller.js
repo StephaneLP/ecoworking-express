@@ -3,7 +3,7 @@ const {trimObjectValues, booleanToNumber} = require('../utils/tools')
 const crud = require('./common/crud')
 
 /*********************************************************
-GET / READ / SELECT
+READ / GET / SELECT
 *********************************************************/
 
 const readCities = (req, res) => {
@@ -22,7 +22,7 @@ const readCities = (req, res) => {
 
     const params = {
         columns: 'id, name',
-        queryStringParams: arrParams,
+        queryParams: arrParams,
         order: sort,
         libelles: {
             method: 'readCities',
@@ -63,4 +63,23 @@ const deleteCityById = (req, res) => {
     crud.deleteRecordById(cityTableDef, params)(req, res)
 }
 
-module.exports = {readCities, readCityById, deleteCityById}
+/*********************************************************
+CREATE / POST / INSERT INTO
+*********************************************************/
+
+const createCity = (req, res) => {
+    const body = trimObjectValues(req.body)
+
+    const params = {
+        bodyParams: body,
+        libelles: {
+            method: 'createCity',
+            fail: 'Aucune ville n\'a été créée',
+            success: 'La ville a bien été créée',
+        }
+    }
+console.log(body)
+    crud.createRecord(cityTableDef, params)(req, res)
+}
+
+module.exports = {readCities, readCityById, deleteCityById, createCity}

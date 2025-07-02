@@ -7,7 +7,9 @@ const app = express()
 Middlewares
 *********************************************************/
 
-app.use(serveFavicon(__dirname + '/favicon.png'))
+app
+  .use(serveFavicon(__dirname + '/favicon.png'))
+  .use(express.json())
 
 /*********************************************************
 Middlewares spécifiques à l'environnement de développement

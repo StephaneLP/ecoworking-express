@@ -8,7 +8,7 @@ const sqlSelect = (params, tableName) =>  {
     const reqParams = [], arrConditions = [], arrPattern = []
     let reqValue, pattern = ''
 
-    for (let param of params.queryStringParams) {
+    for (let param of params.queryParams) {
         reqValue = param.value
 
         switch (param.op.toUpperCase()) {

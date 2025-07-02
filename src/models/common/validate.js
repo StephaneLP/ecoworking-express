@@ -58,24 +58,24 @@ const checkValue = (constraints, column, value) => {
     return false
 }
 
-const checkQueryString = (queryStringParams, columns) => {
+const checkQueryParams = (queryParams, columns) => {
     try {
-        if(queryStringParams) {
+        if(queryParams) {
             let constraints, values, msg
 
-            for (let param of queryStringParams) {
+            for (let param of queryParams) {
                 constraints = columns[param.column]
 
                 if (param.op === 'IN') {
                     values = param.value.split(',')
                     for (let value of values) {
                         msg = checkValue(constraints, param.column, value)
-                        if (msg) return {success: false, method: 'checkQueryString', msg: msg}                        
+                        if (msg) return {success: false, method: 'checkQueryParams', msg: msg}                        
                     }
                 }
                 else {
                     msg = checkValue(constraints, param.column, param.value)
-                    if (msg) return {success: false, method: 'checkQueryString', msg: msg}
+                    if (msg) return {success: false, method: 'checkQueryParams', msg: msg}
                 }
             }
         }
@@ -83,10 +83,26 @@ const checkQueryString = (queryStringParams, columns) => {
         return {success: true}
     }
     catch(err) {
-        throw new Error(`checkQueryString - ${err.name} (${err.message})`)
+        throw new Error(`checkQueryParams - ${err.name} (${err.message})`)
     }
 }
 
+/*********************************************************
+DONNÉES PASSÉES PAR LE BODY (DATA)
+*********************************************************/
+
+const checkBodyParams = (bodyParams, columns) => {
+    try {
+        for (let key in bodyParams) {
+            console.log(key, bodyParams[key])
+        }
+
+        return {success: true}
+    }
+    catch(err) {
+        throw new Error(`checkBodyParams - ${err.name} (${err.message})`)
+    }
+}
 // POUR BODY :
 
 // const nullAutorized = constraint.nullAutorized
@@ -96,4 +112,4 @@ const checkQueryString = (queryStringParams, columns) => {
 //     return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur valeur (colonne '${pathParam.column}', 'null', 'undefined' et chaine vide non authorisés)`}
 // }
 
-module.exports = {checkURIParam, checkQueryString}
+module.exports = {checkURIParam, checkQueryParams, checkBodyParams}

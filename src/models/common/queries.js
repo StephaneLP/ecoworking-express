@@ -1,6 +1,6 @@
 const db = require('../../config/db.js')
 const build = require('./build.js')
-const {checkURIParam, checkQueryString} = require('./validate.js')
+const {checkURIParam, checkQueryParams, checkBodyParams} = require('./validate.js')
 
 /*********************************************************
 ÉXECUTION DE LA REQUÊTE
@@ -27,8 +27,8 @@ SELECT
 
 const runQuerySelect = (dbTableDef, params) => {
     try {
-        // Validation du Path Parameter
-        const check = checkQueryString(params.queryStringParams, dbTableDef.tableColumns)
+        // Validation des Paramètres
+        const check = checkQueryParams(params.queryParams, dbTableDef.tableColumns)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
@@ -42,7 +42,7 @@ const runQuerySelect = (dbTableDef, params) => {
 
 const runQuerySelectById = (dbTableDef, params) => {
     try {
-        // Validation du Path Parameter
+        // Validation du URI Parameter
         const check = checkURIParam(params.pathParam, dbTableDef.tableColumns)
         if (!check.success) return check
 
@@ -74,4 +74,21 @@ const runQueryDeleteById = (dbTableDef, params) => {
     }     
 }
 
-module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById}
+/*********************************************************
+INSERT INTO
+*********************************************************/
+
+const runQueryInsert = (dbTableDef, params) => {
+    try {
+        // Validation des data (body)
+        const check = checkBodyParams(params.bodyParams, dbTableDef.tableColumns)
+        if (!check.success) return check
+
+         // Construction et éxecution de la requête SQL
+    }
+    catch(err) {
+        throw new Error(`${err.message}`)
+    }
+}
+
+module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById, runQueryInsert}
