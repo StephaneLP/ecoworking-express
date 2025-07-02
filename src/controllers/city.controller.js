@@ -1,5 +1,5 @@
 const {cityTableDef} = require('../models/city.model')
-const {trimObjectValues} = require('../utils/tools')
+const {trimObjectValues, booleanToNumber} = require('../utils/tools')
 const crud = require('./common/crud')
 
 /*********************************************************
@@ -11,9 +11,9 @@ const readCities = (req, res) => {
 
     // Clause WHERE : Filtres (conditions)
     const arrParams = []
-    if(query.key) arrParams.push({column: 'id', op: 'IN', value: `$query.key}`})
+    if(query.key) arrParams.push({column: 'id', op: 'IN', value: `${query.key}`})
     if(query.ville) arrParams.push({column: 'name', op: 'LIKE', value: `${query.ville}`, pattern: '%?%'})
-    if(query.active) arrParams.push({column: 'is_active', op: '=', value: query.active})
+    if(query.active) arrParams.push({column: 'is_active', op: '=', value: booleanToNumber(query.active)})
 
     // Clause ORDER BY
     let direction = query.dir || ''

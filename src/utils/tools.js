@@ -21,4 +21,10 @@ function trimObjectValues(reqQuery) {
     return query
 }
 
-module.exports = {stringAsInteger, stringAsBoolean, trimObjectValues}
+function booleanToNumber(str) {
+    if (str.toLowerCase() === 'true') return '1'
+    if (str.toLowerCase() === 'false') return '0'
+    return str
+}
+
+module.exports = {stringAsInteger, stringAsBoolean, trimObjectValues, booleanToNumber}

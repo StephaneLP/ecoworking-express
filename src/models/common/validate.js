@@ -18,7 +18,6 @@ const checkURIParam = (pathParam, columns) => {
                 if (!stringAsInteger(pathParam.value)) {
                     return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur type de donnée (colonne '${pathParam.column}', type 'integer' attendu)`}
                 }
-                pathParam.value = Number(pathParam.value)
                 break
             case 'string':
                 if (pathParam.value.length > constraint.length) {
@@ -38,63 +37,46 @@ const checkURIParam = (pathParam, columns) => {
 PARAMETRES PASSÉS PAR L'URL : QUERY STRING
 *********************************************************/
 
-const checkParam = (constraint, param) => {
-    switch (constraint.type) {
+const checkValue = (constraints, column, value) => {
+    switch (constraints.type) {
         case 'integer':
-            if (!stringAsInteger(param.value)) {
-                return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
+            if (!stringAsInteger(value)) {
+                return `STRING Param : Erreur type de donnée (colonne '${column}', type 'integer' attendu)`
             }
-            param.value = Number(param.value)
             break
         case 'string':
-            if (param.value.length > constraint.length) {
-                return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur longueur (colonne '${param.column}', string longueur max : ${constraint.length})`}
+            if (value.length > constraints.length) {
+                return `STRING Param : Erreur longueur (colonne '${column}', string longueur max : ${constraints.length})`
             }
             break
         case 'boolean':
-            if (!stringAsBoolean(param.value)) {
-                return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
+            if (!stringAsBoolean(value)) {
+                return `STRING Param : Erreur type de donnée (colonne '${column}', type 'boolean' attendu)`
             }
-            param.value = ['1', 'true'].includes(param.value.toLowerCase())
             break
     }
+    return false
 }
 
 const checkQueryString = (queryStringParams, columns) => {
     try {
         if(queryStringParams) {
-            let constraint, op
+            let constraints, values, msg
 
             for (let param of queryStringParams) {
-                constraint = columns[param.column]
-                op = param.op
-                if (op === 'IN') {
-                    
+                constraints = columns[param.column]
+
+                if (param.op === 'IN') {
+                    values = param.value.split(',')
+                    for (let value of values) {
+                        msg = checkValue(constraints, param.column, value)
+                        if (msg) return {success: false, method: 'checkQueryString', msg: msg}                        
+                    }
                 }
-
-
-console.log('op', op)
-                checkParam(constraint, param)
-
-                // switch (dataType) {
-                //     case 'integer':
-                //         if (!stringAsInteger(param.value)) {
-                //             return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
-                //         }
-                //         param.value = Number(param.value)
-                //         break
-                //     case 'string':
-                //         if (param.value.length > constraint.length) {
-                //             return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur longueur (colonne '${param.column}', string longueur max : ${constraint.length})`}
-                //         }
-                //         break
-                //     case 'boolean':
-                //         if (!stringAsBoolean(param.value)) {
-                //             return {success: false, method: 'checkQueryString', msg: `STRING Param : Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
-                //         }
-                //         param.value = ['1', 'true'].includes(param.value.toLowerCase())
-                //         break
-                // }
+                else {
+                    msg = checkValue(constraints, param.column, param.value)
+                    if (msg) return {success: false, method: 'checkQueryString', msg: msg}
+                }
             }
         }
 
