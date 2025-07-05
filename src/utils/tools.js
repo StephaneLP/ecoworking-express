@@ -16,7 +16,7 @@ function trimObjectValues(reqQuery) {
     const query = {}
     
     Object.entries(reqQuery).forEach(e => {
-        query[e[0]] = e[1].trim()
+        query[e[0]] = e[1].toString().trim()
     })
     return query
 }

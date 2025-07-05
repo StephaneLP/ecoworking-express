@@ -1,27 +1,27 @@
 const {stringAsInteger, stringAsBoolean} = require('../../utils/tools')
 
 /*********************************************************
-PARAMETRE PASSÉ PAR L'URL : PATH PARAM (URI PARAM)
+PARAMETRE PASSÉ PAR L'URL : URI PARAM
 *********************************************************/
 
-const checkURIParam = (pathParam, columns) => {
+const checkURIParam = (URIParam, tableColumns) => {
 
-    if (!pathParam || !pathParam.column || !pathParam.op || !pathParam.value) {
+    if (!URIParam || !URIParam.column || !URIParam.op || !URIParam.value) {
         return {success: false, msg: `La chaîne PathParameter est vide/incomplète`}
     }
     try {
-        const constraint = columns[pathParam.column]
+        const constraint = tableColumns[URIParam.column]
         const dataType = constraint.type
 
         switch (dataType) {
             case 'integer':
-                if (!stringAsInteger(pathParam.value)) {
-                    return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur type de donnée (colonne '${pathParam.column}', type 'integer' attendu)`}
+                if (!stringAsInteger(URIParam.value)) {
+                    return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur type de donnée (colonne '${URIParam.column}', type 'integer' attendu)`}
                 }
                 break
             case 'string':
-                if (pathParam.value.length > constraint.length) {
-                    return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur longueur (colonne '${pathParam.column}', longueur max : ${constraint.length})`}
+                if (URIParam.value.length > constraint.length) {
+                    return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur longueur (colonne '${URIParam.column}', longueur max : ${constraint.length})`}
                 }
                 break
         }
@@ -34,7 +34,7 @@ const checkURIParam = (pathParam, columns) => {
 }
 
 /*********************************************************
-PARAMETRES PASSÉS PAR L'URL : QUERY STRING
+PARAMETRES PASSÉS PAR L'URL : QUERY PARAMS
 *********************************************************/
 
 const checkValue = (constraints, column, value) => {
@@ -58,13 +58,13 @@ const checkValue = (constraints, column, value) => {
     return false
 }
 
-const checkQueryParams = (queryParams, columns) => {
+const checkQueryParams = (queryParams, tableColumns) => {
     try {
         if(queryParams) {
             let constraints, values, msg
 
             for (let param of queryParams) {
-                constraints = columns[param.column]
+                constraints = tableColumns[param.column]
 
                 if (param.op === 'IN') {
                     values = param.value.split(',')
@@ -88,13 +88,38 @@ const checkQueryParams = (queryParams, columns) => {
 }
 
 /*********************************************************
-DONNÉES PASSÉES PAR LE BODY (DATA)
+DONNÉES PASSÉES PAR LE BODY
 *********************************************************/
 
-const checkBodyParams = (bodyParams, columns) => {
+const checkBodyParams = (bodyParams, tableColumns) => {
     try {
-        for (let key in bodyParams) {
-            console.log(key, bodyParams[key])
+        let value, constraints, emptyAuthorized
+
+        for (let column in bodyParams) {
+            constraints = tableColumns[column]
+            if(!constraints) return {success: false, method: 'checkBodyParams', msg: `BODY Param : Colonne '${column}' absente de la BDD`}
+            value = bodyParams[column]
+            
+            switch (constraints.type) {
+                case 'integer':
+                    if (!stringAsInteger(value)) {
+                        return {success: false, method: 'checkBodyParams', msg: `BODY Param : Erreur type de donnée (colonne '${column}', type 'integer' attendu)`}
+                    }
+                    break
+                case 'string':
+                    if (value.length > constraints.length) {
+                        return {success: false, method: 'checkBodyParams', msg: `BODY Param : Erreur longueur (colonne '${column}', longueur max : ${constraints.length})`}
+                    }
+                    if(!constraints.emptyAuthorized && value === '') {
+                        return {success: false, method: 'checkBodyParams', msg: `BODY Param : Erreur longueur (colonne '${column}', colonne vide non autorisée)`}
+                    }
+                    break
+                case 'boolean':
+                    if (!stringAsBoolean(value)) {
+                        return {success: false, method: 'checkBodyParams', msg: `BODY Param : Erreur type de donnée (colonne '${column}', type 'boolean' attendu)`}
+                    }
+                    break
+            }
         }
 
         return {success: true}
@@ -103,13 +128,5 @@ const checkBodyParams = (bodyParams, columns) => {
         throw new Error(`checkBodyParams - ${err.name} (${err.message})`)
     }
 }
-// POUR BODY :
-
-// const nullAutorized = constraint.nullAutorized
-// const emptyAuthorized = constraint.emptyAuthorized
-
-// if ((dataType === 'string' && pathParam.value.lenght == 0 )|| pathParam.value == null) {
-//     return {success: false, method: 'checkURIParam', msg: `URI Param : Erreur valeur (colonne '${pathParam.column}', 'null', 'undefined' et chaine vide non authorisés)`}
-// }
 
 module.exports = {checkURIParam, checkQueryParams, checkBodyParams}

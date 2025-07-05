@@ -11,14 +11,14 @@ const readCities = (req, res) => {
 
     // Clause WHERE : Filtres (conditions)
     const arrParams = []
-    if(query.key) arrParams.push({column: 'id', op: 'IN', value: `${query.key}`})
-    if(query.ville) arrParams.push({column: 'name', op: 'LIKE', value: `${query.ville}`, pattern: '%?%'})
-    if(query.active) arrParams.push({column: 'is_active', op: '=', value: booleanToNumber(query.active)})
+    if(query.id) arrParams.push({column: 'id', op: 'IN', value: `${query.id}`})
+    if(query.name) arrParams.push({column: 'name', op: 'LIKE', value: `${query.name}`, pattern: '%?%'})
+    if(query.is_active) arrParams.push({column: 'is_active', op: '=', value: booleanToNumber(query.is_active)})
 
     // Clause ORDER BY
     let direction = query.dir || ''
     direction = direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
-    const sort = {column: cityTableDef.alias[query.sort] || 'name', direction: direction}
+    const sort = {column: query.sort || 'name', direction: direction}
 
     const params = {
         columns: 'id, name',
@@ -36,7 +36,7 @@ const readCities = (req, res) => {
 const readCityById = (req, res) => {
     const params = {
         columns: 'id, name, created_at, updated_at',
-        pathParam: {column: 'id', op: '=', value: req.params.id.trim()},
+        URIParam: {column: 'id', op: '=', value: req.params.id.trim()},
         libelles: {
             method: 'readCityById',
             fail: 'Aucune ville n\'a été trouvée',
@@ -52,7 +52,7 @@ DELETE / DELETE / DELETE
 
 const deleteCityById = (req, res) => {
     const params = {
-        pathParam: {column: 'id', op: '=', value: req.params.id.trim()},
+        URIParam: {column: 'id', op: '=', value: req.params.id.trim()},
         libelles: {
             method: 'deleteCityById',
             fail: 'Aucune ville n\'a été supprimée',
@@ -78,7 +78,7 @@ const createCity = (req, res) => {
             success: 'La ville a bien été créée',
         }
     }
-console.log(body)
+
     crud.createRecord(cityTableDef, params)(req, res)
 }
 

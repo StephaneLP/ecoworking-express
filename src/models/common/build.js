@@ -5,29 +5,29 @@ SELECT
 const sqlSelect = (params, tableName) =>  {
     const reqColumns = params.columns || '*'
     const reqTables = params.tables || tableName
-    const reqParams = [], arrConditions = [], arrPattern = []
-    let reqValue, pattern = ''
+    const arrParams = [], arrConditions = [], arrPattern = []
+    let value, pattern
 
     for (let param of params.queryParams) {
-        reqValue = param.value
+        value = param.value
 
         switch (param.op.toUpperCase()) {
             case 'LIKE':
-                reqValue = reqValue.replace('%', '\\%')       
-                reqValue = reqValue.replace('_', '\\_')
-                reqValue = param.pattern.replace('?', reqValue)
-                reqParams.push(reqValue)               
+                value = value.replace('%', '\\%')       
+                value = value.replace('_', '\\_')
+                value = param.pattern.replace('?', value)
+                arrParams.push(value)               
                 pattern = '?'
                 break
             case 'IN':            
-                reqValue.split(',').forEach(e => {
+                value.split(',').forEach(e => {
                     arrPattern.push('?')
-                    reqParams.push(e)
+                    arrParams.push(e)
                 })
                 pattern = `(${arrPattern.join()})`
                 break
             default:
-                reqParams.push(reqValue)
+                arrParams.push(value)
                 pattern = '?'
 
         }
@@ -37,27 +37,48 @@ const sqlSelect = (params, tableName) =>  {
     const strConditions = arrConditions.join(' AND ')
     const sqlWhereClause = strConditions ? ` WHERE ${strConditions}` : ''
     const sqlOrderClause = ` ORDER BY ${params.order.column} ${params.order.direction}`
-    return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}${sqlOrderClause}`, reqParams: reqParams}
+    
+    return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}${sqlOrderClause}`, reqParams: arrParams}
 }
 
 const sqlSelectById = (params, tableName) =>  {
     const reqColumns = params.columns || '*'
     const reqTables = params.tables || tableName
-    const reqParams = [params.pathParam.value]
-    const sqlWhereClause = ` WHERE ${params.pathParam.column} ${params.pathParam.op} ?`
+    const arrParams = [params.URIParam.value]
+    const sqlWhereClause = ` WHERE ${params.URIParam.column} ${params.URIParam.op} ?`
 
-    return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}`, reqParams: reqParams}
+    return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}`, reqParams: arrParams}
 }
 
 /*********************************************************
 DELETE
 *********************************************************/
 
-const sqlDeleteById = (params, tableName) =>  {
-    const reqParams = [params.pathParam.value]
-    const sqlWhereClause = ` WHERE ${params.pathParam.column} ${params.pathParam.op} ?`
+const sqlDeleteById = (URIParam, tableName) =>  {
+    const arrParams = [URIParam.value]
+    const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
 
-    return {reqString: `DELETE FROM ${tableName}${sqlWhereClause}`, reqParams: reqParams}
+    return {reqString: `DELETE FROM ${tableName}${sqlWhereClause}`, reqParams: arrParams}
 }
 
-module.exports = {sqlSelect, sqlSelectById, sqlDeleteById}
+/*********************************************************
+INSERT INTO
+*********************************************************/
+
+const sqlInsert = (bodyParams, dbTableDef) => {
+    const reqColumns = [], arrParams = [], arrPattern = []
+    let constraints, value, pattern
+
+    for(let column in dbTableDef.tableColumns) {
+        constraints = dbTableDef.tableColumns[column]
+        value = bodyParams[column]
+
+        console.log(column, value, constraints)
+
+
+    }
+
+    return {reqString: `INSERT INTO ${dbTableDef.tableName} (${sqlWhereClause}) VALUES `, reqParams: arrParams}
+}
+
+module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert}

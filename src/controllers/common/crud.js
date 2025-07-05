@@ -98,6 +98,20 @@ const createRecord = (tableDef, params) => {
     return async (req, res) => {
         try {
             const dbReq = await queries.runQueryInsert(tableDef, params)
+
+            if (!dbReq.success) {
+                res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
+                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
+                return                
+            }
+
+
+
+
+
+
+            
+            res.status(201).json({status: 'success', code: 201, message: dbReq})
         }
         catch(err) {
             res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})

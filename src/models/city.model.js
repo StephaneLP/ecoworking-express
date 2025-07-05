@@ -8,17 +8,14 @@ const cityTableDef = {
         },
         name: {
             type: 'string',
+            nullAuthorized: false,
             length: 100,
             emptyAuthorized: false,
-            nullAuthorized: false,
         },
         is_active: {
             type: 'boolean',
             nullAuthorized: false,
         }
-    },
-    alias: {
-        ville: 'name',
     }
 }
 
