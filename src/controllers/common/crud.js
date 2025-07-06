@@ -5,10 +5,10 @@ const queries = require('../../models/common/queries')
 READ
 *********************************************************/
 
-const readRecords = (tableDef, params) => {
+const readRecords = (params, tableDef) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQuerySelect(tableDef, params)
+            const dbReq = await queries.runQuerySelect(params, tableDef)
 
             if (!dbReq.success) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
@@ -32,10 +32,10 @@ const readRecords = (tableDef, params) => {
     }
 }
 
-const readRecordById = (tableDef, params) => {
+const readRecordById = (params, tableDef) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQuerySelectById(tableDef, params)
+            const dbReq = await queries.runQuerySelectById(params, tableDef)
 
             if (!dbReq.success) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
@@ -63,10 +63,10 @@ const readRecordById = (tableDef, params) => {
 DELETE
 *********************************************************/
 
-const deleteRecordById = (tableDef, params) => {
+const deleteRecordById = (params, tableDef) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQueryDeleteById(tableDef, params)
+            const dbReq = await queries.runQueryDeleteById(params, tableDef)
 
             if (!dbReq.success) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
@@ -94,10 +94,10 @@ const deleteRecordById = (tableDef, params) => {
 CREATE
 *********************************************************/
 
-const createRecord = (tableDef, params) => {
+const createRecord = (params, tableDef) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQueryInsert(tableDef, params)
+            const dbReq = await queries.runQueryInsert(params, tableDef)
 
             if (!dbReq.success) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})

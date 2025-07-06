@@ -3,6 +3,9 @@ SELECT
 *********************************************************/
 
 const sqlSelect = (params, tableName) =>  {
+
+
+
     const reqColumns = params.columns || '*'
     const reqTables = params.tables || tableName
     const arrParams = [], arrConditions = [], arrPattern = []
@@ -33,19 +36,20 @@ const sqlSelect = (params, tableName) =>  {
         }
         arrConditions.push(`${param.column} ${param.op} ${pattern}`)
     }
-
+console.log(arrParams)
     const strConditions = arrConditions.join(' AND ')
     const sqlWhereClause = strConditions ? ` WHERE ${strConditions}` : ''
     const sqlOrderClause = ` ORDER BY ${params.order.column} ${params.order.direction}`
-    
+
     return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}${sqlOrderClause}`, reqParams: arrParams}
 }
 
-const sqlSelectById = (params, tableName) =>  {
+const sqlSelectById = (params, tableDef) =>  {
+    const URIParam = params.URIParam
     const reqColumns = params.columns || '*'
-    const reqTables = params.tables || tableName
-    const arrParams = [params.URIParam.value]
-    const sqlWhereClause = ` WHERE ${params.URIParam.column} ${params.URIParam.op} ?`
+    const reqTables = params.tables || tableDef.tableName
+    const arrParams = [URIParam.value]
+    const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
 
     return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}`, reqParams: arrParams}
 }
@@ -54,11 +58,12 @@ const sqlSelectById = (params, tableName) =>  {
 DELETE
 *********************************************************/
 
-const sqlDeleteById = (URIParam, tableName) =>  {
+const sqlDeleteById = (params, tableDef) =>  {
+    const URIParam = params.URIParam
     const arrParams = [URIParam.value]
     const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
 
-    return {reqString: `DELETE FROM ${tableName}${sqlWhereClause}`, reqParams: arrParams}
+    return {reqString: `DELETE FROM ${tableDef.tableName}${sqlWhereClause}`, reqParams: arrParams}
 }
 
 /*********************************************************
@@ -71,14 +76,18 @@ const sqlInsert = (bodyParams, dbTableDef) => {
 
     for(let column in dbTableDef.tableColumns) {
         constraints = dbTableDef.tableColumns[column]
-        value = bodyParams[column]
+        value = bodyParams[column] || null
 
-        console.log(column, value, constraints)
+        if (constraints.autoIncrement) continue
+        console.log('value', bodyParams[column], value)
 
+        if (!constraints.nullAuthorized && !value) {
+            return {success: false, method: 'build.sqlInsert', msg: `Colonne '${column}' : Null non autorisé / Colonne absente du Body`}
+        }
 
     }
 
-    return {reqString: `INSERT INTO ${dbTableDef.tableName} (${sqlWhereClause}) VALUES `, reqParams: arrParams}
+    return {success: true, reqString: `INSERT INTO ${dbTableDef.tableName} (${sqlWhereClause}) VALUES `, reqParams: arrParams}
 }
 
 module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert}

@@ -1,5 +1,5 @@
 const {cityTableDef} = require('../models/city.model')
-const {trimObjectValues, booleanToNumber} = require('../utils/tools')
+const {trimStringValues, booleanToNumber} = require('../utils/tools')
 const crud = require('./common/crud')
 
 /*********************************************************
@@ -7,30 +7,25 @@ READ / GET / SELECT
 *********************************************************/
 
 const readCities = (req, res) => {
-    const query = trimObjectValues(req.query)
+    const queryParams = trimStringValues(req.query)
 
-    // Clause WHERE : Filtres (conditions)
-    const arrParams = []
-    if(query.id) arrParams.push({column: 'id', op: 'IN', value: `${query.id}`})
-    if(query.name) arrParams.push({column: 'name', op: 'LIKE', value: `${query.name}`, pattern: '%?%'})
-    if(query.is_active) arrParams.push({column: 'is_active', op: '=', value: booleanToNumber(query.is_active)})
-
-    // Clause ORDER BY
-    let direction = query.dir || ''
-    direction = direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
-    const sort = {column: query.sort || 'name', direction: direction}
+    // Clause WHERE : tableau contenant les filtres (objets)
+    const arrQueryParams = []
+    if(queryParams.id) arrQueryParams.push({column: 'id', op: 'IN', value: queryParams.id.split(',')})
+    if(queryParams.name) arrQueryParams.push({column: 'name', op: 'LIKE', value: queryParams.name, pattern: '%?%'})
+    if(queryParams.is_active) arrQueryParams.push({column: 'is_active', op: '=', value: queryParams.is_active})
 
     const params = {
-        columns: 'id, name',
-        queryParams: arrParams,
-        order: sort,
+        columns: 'id, name, is_active',
+        queryParams: arrQueryParams,
+        order: {column: queryParams.sort || 'name', direction: queryParams.dir || 'ASC'},
         libelles: {
             method: 'readCities',
             fail: 'Aucune ville n\'a été trouvée',
         }
     }
 
-    crud.readRecords(cityTableDef, params)(req, res)
+    crud.readRecords(params, cityTableDef)(req, res)
 }
 
 const readCityById = (req, res) => {
@@ -43,7 +38,7 @@ const readCityById = (req, res) => {
         }
     }
 
-    crud.readRecordById(cityTableDef, params)(req, res)
+    crud.readRecordById(params, cityTableDef)(req, res)
 }
 
 /*********************************************************
@@ -60,7 +55,7 @@ const deleteCityById = (req, res) => {
         }
     }
 
-    crud.deleteRecordById(cityTableDef, params)(req, res)
+    crud.deleteRecordById(params, cityTableDef)(req, res)
 }
 
 /*********************************************************
@@ -68,7 +63,7 @@ CREATE / POST / INSERT INTO
 *********************************************************/
 
 const createCity = (req, res) => {
-    const body = trimObjectValues(req.body)
+    const body = trimStringValues(req.body)
 
     const params = {
         bodyParams: body,
@@ -79,7 +74,7 @@ const createCity = (req, res) => {
         }
     }
 
-    crud.createRecord(cityTableDef, params)(req, res)
+    crud.createRecord(params, cityTableDef)(req, res)
 }
 
 module.exports = {readCities, readCityById, deleteCityById, createCity}

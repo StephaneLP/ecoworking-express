@@ -25,14 +25,20 @@ const runQuery = async (sql) => {
 SELECT
 *********************************************************/
 
-const runQuerySelect = (dbTableDef, params) => {
+const runQuerySelect = (params, tableDef) => {
     try {
-        // Validation des Paramètres
-        const check = checkQueryParams(params.queryParams, dbTableDef.tableColumns)
+        let check
+
+        // Validation des Paramètres (clause WHERE)
+        check = checkQueryParams(params, tableDef)
         if (!check.success) return check
 
+        // Validation du tri (clause ORDER)
+        // check = checkOrderParam(params, tableDef)
+        // if (!check.success) return check
+
         // Construction et éxecution de la requête SQL
-        const sql = build.sqlSelect(params, dbTableDef.tableName)
+        const sql = build.sqlSelect(params, tableDef)
         return runQuery(sql)
     }
     catch(err) {
@@ -40,14 +46,15 @@ const runQuerySelect = (dbTableDef, params) => {
     }        
 }
 
-const runQuerySelectById = (dbTableDef, params) => {
+const runQuerySelectById = (params, tableDef) => {
     try {
         // Validation du URI Parameter
-        const check = checkURIParam(params.URIParam, dbTableDef.tableColumns)
+        const check = checkURIParam(params, tableDef)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
-        const sql = build.sqlSelectById(params, dbTableDef.tableName)
+        const sql = build.sqlSelectById(params, tableDef)
+
         return runQuery(sql)
     }
     catch(err) {
@@ -59,15 +66,14 @@ const runQuerySelectById = (dbTableDef, params) => {
 DELETE
 *********************************************************/
 
-const runQueryDeleteById = (dbTableDef, params) => {
+const runQueryDeleteById = (params, tableDef) => {
     try {
         // Validation du Path Parameter
-        const check = checkURIParam(params.URIParam, dbTableDef.tableColumns)
+        const check = checkURIParam(params, tableDef)
         if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
-        const sql = build.sqlDeleteById(params.URIParam, dbTableDef.tableName)
-        return runQuery(sql)
+        const sql = build.sqlDeleteById(params, tableDef)
     }
     catch(err) {
         throw new Error(`${err.message}`)
@@ -78,14 +84,15 @@ const runQueryDeleteById = (dbTableDef, params) => {
 INSERT INTO
 *********************************************************/
 
-const runQueryInsert = (dbTableDef, params) => {
+const runQueryInsert = (params, tableDef) => {
     try {
         // Validation des data (body)
-        const check = checkBodyParams(params.bodyParams, dbTableDef.tableColumns)
+        const check = checkBodyParams(params.bodyParams, tableDef.tableColumns)
         if (!check.success) return check
 
          // Construction et éxecution de la requête SQL
-         const sql = build.sqlInsert(params.bodyParams, dbTableDef)
+         const sql = build.sqlInsert(params.bodyParams, tableDef)
+         if (!sql.success) return sql
         //   return runQuery(sql)
           return {success: true, result: sql}
     }
