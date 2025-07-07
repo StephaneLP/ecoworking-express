@@ -8,7 +8,7 @@ const pool = mariadb.createPool({
      database: process.env.DB_DATABASE,
      port: process.env.DB_PORT,
      bigIntAsNumber: true,
-     connectionLimit: 5
+     connectionLimit: 5,
 })
 
 const testConnect = async () => {

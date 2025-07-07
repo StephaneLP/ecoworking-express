@@ -40,56 +40,40 @@ const checkURIParam = (params, tableDef) => {
 PARAMETRES PASSÉS PAR L'URL : QUERY PARAMS
 *********************************************************/
 
-const checkValue = (constraints, column, value) => {
-    switch (constraints.type) {
-        case 'integer':
-            if (!stringAsInteger(value)) {
-                return `(QUERY Params) Erreur type de donnée (colonne '${column}', type 'integer' attendu)`
-            }
-            break
-        case 'string':
-            if (value.length > constraints.length) {
-                return `(QUERY Params) Erreur longueur (colonne '${column}', string longueur max : ${constraints.length})`
-            }
-            break
-        case 'boolean':
-            if (!stringAsBoolean(value)) {
-                return `(QUERY Params) Erreur type de donnée (colonne '${column}', type 'boolean' attendu)`
-            }
-            break
-    }
-    return false
-}
-
 const checkQueryParams = (params, tableDef) => {
     const queryParams = params.queryParams
 
     try {
         if(queryParams) {
-            let constraints, msg
+            let constraints, value
 
             for (let param of queryParams) {
                 constraints = tableDef.tableColumns[param.column]
-                if(!constraints) return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Colonne '${param.column}' absente de la BDD`}
-
-                if (param.op === 'IN') {
-                    console.log('TABLEAU', param.value)
-                    for (let value in param.value) {
-                        console.log(value, typeof value)
-                        param.value[value] = Number(param.value[value])
-
-
-
-                        // msg = checkValue(constraints, param.column, value)
-                        // if (msg) return {success: false, method: 'checkQueryParams', msg: msg}                        
-                    }
-console.log('TABLEAU', param.value)
-
-
+                if(!constraints) {
+                    return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Colonne '${param.column}' absente de la BDD`}
                 }
-                else {
-                    msg = checkValue(constraints, param.column, param.value)
-                    if (msg) return {success: false, method: 'checkQueryParams', msg: msg}
+                for (let i = 0; i < param.values.length; i++) {
+                    value = param.values[i]
+
+                    switch (constraints.type) {
+                        case 'integer':
+                            if (!stringAsInteger(value)) {
+                                return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
+                            }
+                            param.values[i] = Number(value)
+                            break
+                        case 'string':
+                            if (value.length > constraints.length) {
+                                return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Erreur longueur (colonne '${param.column}', string longueur max : ${constraints.length})`}
+                            }
+                            break
+                        case 'boolean':
+                            if (!stringAsBoolean(value)) {
+                                return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
+                            }
+                            param.values[i] = (['1', 'true'].includes(value.toLowerCase()) ? 1 : 0)
+                            break
+                    }
                 }
             }
         }
@@ -101,37 +85,58 @@ console.log('TABLEAU', param.value)
     }
 }
 
-    // // Clause ORDER BY
-    // let direction = queryParams.dir || ''
-    // direction = direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
-    // const sort = {column: queryParams.sort || 'name', direction: direction}
-
 const checkOrderParam = (params, tableDef) => {
-    const order = params.order
-    const tableColumns = tableDef.tableColumns
+    try {
+        const order = params.order
+        const tableColumns = tableDef.tableColumns
 
+        if (!tableColumns[order.column]) {
+            return {success: false, method: 'checkOrderParam', msg: `(QUERY Params) Colonne de tri '${order.column}' absente de la BDD`}
+        }
+        order.direction = (order.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')
+
+        return {success: true}
+    }
+    catch(err) {
+        throw new Error(`checkOrderParam - ${err.name} (${err.message})`)
+    }
 }
 
 /*********************************************************
 DONNÉES PASSÉES PAR LE BODY
 *********************************************************/
 
-const checkBodyParams = (bodyParams, tableColumns) => {
+const checkBodyParams = (params, tableDef) => {
+    const bodyParams = params.bodyParams
+
     try {
         let value, constraints, emptyAuthorized
 
         for (let column in bodyParams) {
-            constraints = tableColumns[column]
-            if(!constraints) return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Colonne '${column}' absente de la BDD`}
+            constraints = tableDef.tableColumns[column]
+            if(!constraints) {
+                return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Colonne '${column}' absente de la BDD`}
+            }
             value = bodyParams[column]
-            
+            if (value === null) {
+                if (!constraints.nullAuthorized) return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Colonne '${column}', valeur null non autorisée`}
+                continue
+            }
+
+            // STRING - NUMBER - TRUE, FALSE - NULL
             switch (constraints.type) {
                 case 'integer':
-                    if (!stringAsInteger(value)) {
+                    if (typeof value !== 'number') {
+                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'number' attendu)`}
+                    }
+                    if (!stringAsInteger(String(value))) {
                         return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'integer' attendu)`}
                     }
                     break
                 case 'string':
+                    if (typeof value !== 'string') {
+                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'string' attendu)`}
+                    }
                     if (value.length > constraints.length) {
                         return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur longueur (colonne '${column}', longueur max : ${constraints.length})`}
                     }
@@ -140,13 +145,14 @@ const checkBodyParams = (bodyParams, tableColumns) => {
                     }
                     break
                 case 'boolean':
-                    if (!stringAsBoolean(value)) {
+                    if (![0,1,true,false].includes(value)) {
                         return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'boolean' attendu)`}
                     }
+                    bodyParams[column] = Number(value) // true => 1, false => 0
                     break
             }
         }
-
+console.log(bodyParams)
         return {success: true}
     }
     catch(err) {

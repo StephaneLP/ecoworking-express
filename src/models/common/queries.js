@@ -1,6 +1,6 @@
 const db = require('../../config/db.js')
 const build = require('./build.js')
-const {checkURIParam, checkQueryParams, checkBodyParams} = require('./validate.js')
+const {checkURIParam, checkQueryParams, checkOrderParam, checkBodyParams} = require('./validate.js')
 
 /*********************************************************
 ÉXECUTION DE LA REQUÊTE
@@ -34,8 +34,8 @@ const runQuerySelect = (params, tableDef) => {
         if (!check.success) return check
 
         // Validation du tri (clause ORDER)
-        // check = checkOrderParam(params, tableDef)
-        // if (!check.success) return check
+        check = checkOrderParam(params, tableDef)
+        if (!check.success) return check
 
         // Construction et éxecution de la requête SQL
         const sql = build.sqlSelect(params, tableDef)
@@ -87,12 +87,17 @@ INSERT INTO
 const runQueryInsert = (params, tableDef) => {
     try {
         // Validation des data (body)
-        const check = checkBodyParams(params.bodyParams, tableDef.tableColumns)
+        const check = checkBodyParams(params, tableDef)
         if (!check.success) return check
 
+
+
+
+
+        
          // Construction et éxecution de la requête SQL
-         const sql = build.sqlInsert(params.bodyParams, tableDef)
-         if (!sql.success) return sql
+        //  const sql = build.sqlInsert(params, tableDef)
+        //  if (!sql.success) return sql
         //   return runQuery(sql)
           return {success: true, result: sql}
     }

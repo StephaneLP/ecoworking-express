@@ -2,41 +2,38 @@
 SELECT
 *********************************************************/
 
-const sqlSelect = (params, tableName) =>  {
-
-
-
+const sqlSelect = (params, tableDef) =>  {
     const reqColumns = params.columns || '*'
-    const reqTables = params.tables || tableName
+    const reqTables = params.tables || tableDef.tableName
     const arrParams = [], arrConditions = [], arrPattern = []
     let value, pattern
 
     for (let param of params.queryParams) {
-        value = param.value
-
         switch (param.op.toUpperCase()) {
             case 'LIKE':
+                value = param.values[0]
                 value = value.replace('%', '\\%')       
                 value = value.replace('_', '\\_')
                 value = param.pattern.replace('?', value)
-                arrParams.push(value)               
+                arrParams.push(value)
                 pattern = '?'
                 break
-            case 'IN':            
-                value.split(',').forEach(e => {
+            case 'IN':
+                param.values.forEach(e => {
                     arrPattern.push('?')
                     arrParams.push(e)
                 })
                 pattern = `(${arrPattern.join()})`
                 break
             default:
+                value = param.values[0]
                 arrParams.push(value)
                 pattern = '?'
 
         }
         arrConditions.push(`${param.column} ${param.op} ${pattern}`)
     }
-console.log(arrParams)
+
     const strConditions = arrConditions.join(' AND ')
     const sqlWhereClause = strConditions ? ` WHERE ${strConditions}` : ''
     const sqlOrderClause = ` ORDER BY ${params.order.column} ${params.order.direction}`

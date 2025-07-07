@@ -11,9 +11,9 @@ const readCities = (req, res) => {
 
     // Clause WHERE : tableau contenant les filtres (objets)
     const arrQueryParams = []
-    if(queryParams.id) arrQueryParams.push({column: 'id', op: 'IN', value: queryParams.id.split(',')})
-    if(queryParams.name) arrQueryParams.push({column: 'name', op: 'LIKE', value: queryParams.name, pattern: '%?%'})
-    if(queryParams.is_active) arrQueryParams.push({column: 'is_active', op: '=', value: queryParams.is_active})
+    if(queryParams.id) arrQueryParams.push({column: 'id', op: 'IN', values: queryParams.id.split(',')})
+    if(queryParams.name) arrQueryParams.push({column: 'name', op: 'LIKE', values: [queryParams.name], pattern: '%?%'})
+    if(queryParams.is_active) arrQueryParams.push({column: 'is_active', op: '=', values: [queryParams.is_active]})
 
     const params = {
         columns: 'id, name, is_active',

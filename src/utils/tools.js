@@ -17,7 +17,6 @@ function stringAsInteger(str) {
 }
 
 function stringAsBoolean(str) {
-
     return ['0','1','true','false'].includes(str.toLowerCase())
 }
 
