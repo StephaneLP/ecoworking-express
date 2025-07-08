@@ -152,7 +152,7 @@ const checkBodyParams = (params, tableDef) => {
                     break
             }
         }
-console.log(bodyParams)
+
         return {success: true}
     }
     catch(err) {
