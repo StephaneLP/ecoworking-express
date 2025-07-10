@@ -67,24 +67,25 @@ const sqlDeleteById = (params, tableDef) =>  {
 INSERT INTO
 *********************************************************/
 
-const sqlInsert = (bodyParams, dbTableDef) => {
-    const reqColumns = [], arrParams = [], arrPattern = []
-    let constraints, value, pattern
+const sqlInsert = (params, dbTableDef) => {
+    const arrColumns = [], arrParams = [], arrPattern = []
+    let constraints, value
 
     for(let column in dbTableDef.tableColumns) {
         constraints = dbTableDef.tableColumns[column]
-        value = bodyParams[column] || null
+        value = params.bodyParams[column] || null
 
         if (constraints.autoIncrement) continue
-        console.log('value', bodyParams[column], value)
-
         if (!constraints.nullAuthorized && !value) {
-            return {success: false, method: 'build.sqlInsert', msg: `Colonne '${column}' : Null non autorisé / Colonne absente du Body`}
+            return {success: false, method: 'build.sqlInsert', msg: `Colonne '${column}' : Null non autorisé`}
         }
 
+        arrColumns.push(column)
+        arrParams.push(value)
+        arrPattern.push('?')
     }
 
-    return {success: true, reqString: `INSERT INTO ${dbTableDef.tableName} (${sqlWhereClause}) VALUES `, reqParams: arrParams}
+    return {success: true, reqString: `INSERT INTO ${dbTableDef.tableName} (${arrColumns.join()}) VALUES (${arrPattern.join()})`, reqParams: arrParams}
 }
 
 module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert}

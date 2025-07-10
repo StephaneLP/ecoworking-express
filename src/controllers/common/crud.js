@@ -71,12 +71,12 @@ const deleteRecordById = (params, tableDef) => {
             if (!dbReq.success) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
                 log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
-                return                
+                return
             }
 
             if (dbReq.result.affectedRows === 0) {
                 res.status(404).json({status: 'error', code: 404, message: params.libelles.fail})
-                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Aucune ligne supprimée (id: ${params.pathParam.value})`)
+                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Aucune ligne supprimée (id: ${params.URIParam.value})`)
                 return
             }
 
@@ -113,8 +113,12 @@ const createRecord = (params, tableDef) => {
 
 
 
-            
-            res.status(201).json({status: 'success', code: 201, message: dbReq})
+
+
+
+
+            res.status(200).json({status: 'success', code: 200, message: params.libelles.success})
+            log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method} ; Message : ${dbReq.result.affectedRows} ligne(s) ajoutée(s)`)
         }
         catch(err) {
             res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})

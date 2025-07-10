@@ -123,7 +123,6 @@ const checkBodyParams = (params, tableDef) => {
                 continue
             }
 
-            // STRING - NUMBER - TRUE, FALSE - NULL
             switch (constraints.type) {
                 case 'integer':
                     if (typeof value !== 'number') {

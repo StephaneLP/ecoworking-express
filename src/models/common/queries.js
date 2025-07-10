@@ -11,9 +11,13 @@ const runQuery = async (sql) => {
     try {
         conn = await db.getConnection()
         const result = await conn.query(sql.reqString, sql.reqParams)
+
         return {success: true, result: result}
     } 
     catch (err) {
+
+
+console.log('err : ', err.code)
         throw new Error(`runQuery - ${err.name} (${err.message})`)
     } 
     finally {
@@ -74,6 +78,8 @@ const runQueryDeleteById = (params, tableDef) => {
 
         // Construction et éxecution de la requête SQL
         const sql = build.sqlDeleteById(params, tableDef)
+
+        return runQuery(sql)
     }
     catch(err) {
         throw new Error(`${err.message}`)
@@ -90,16 +96,10 @@ const runQueryInsert = (params, tableDef) => {
         const check = checkBodyParams(params, tableDef)
         if (!check.success) return check
 
+        //Construction et éxecution de la requête SQL
+        const sql = build.sqlInsert(params, tableDef)
 
-
-
-
-        
-         // Construction et éxecution de la requête SQL
-        //  const sql = build.sqlInsert(params, tableDef)
-        //  if (!sql.success) return sql
-        //   return runQuery(sql)
-          return {success: true, result: sql}
+        return runQuery(sql)
     }
     catch(err) {
         throw new Error(`${err.message}`)
