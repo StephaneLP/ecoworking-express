@@ -9,21 +9,6 @@ READ / GET / SELECT
 const readCities = (req, res) => {
     const queryParams = trimStringValues(req.query)
 
-    // try {
-    //     console.log('--------------------------------------------------------------')
-    //     console.log("1", new Date('1998-01-01 00:30:00')) 
-    //     console.log("2", (new Date('1998-01-01 00:30:00')).getFullYear())
-    //     const date = new Date('1998-01-01T00:30:00.000+0100')
-    //     console.log("3", date,  date.getUTCFullYear())
-    //     let d1 = new Date("December 17, 1995 03:24:00");
-    //     console.log( d1 )
-    //     console.log('--------------------------------------------------------------')
-    // }
-    // catch(err) {
-    //     console.log(err)
-    // }
-    
-
     // Clause WHERE : tableau contenant les filtres (objets)
     const arrQueryParams = []
     if(queryParams.id) arrQueryParams.push({column: 'id', op: 'IN', values: queryParams.id.split(',')})
@@ -92,4 +77,24 @@ const createCity = (req, res) => {
     crud.createRecord(params, cityTableDef)(req, res)
 }
 
-module.exports = {readCities, readCityById, deleteCityById, createCity}
+/*********************************************************
+UPDATE / PUT / INSERT INTO
+*********************************************************/
+
+const updateCityById = (req, res) => {
+    const body = trimStringValues(req.body)
+
+    const params = {
+        URIParam: {column: 'id', op: '=', value: req.params.id.trim()},
+        bodyParams: body,
+        libelles: {
+            method: 'updateCity',
+            fail: 'Aucune ville n\'a été modifiée',
+            success: 'La ville a bien été modifiée',
+        }
+    }
+
+    crud.updateRecordById(params, cityTableDef)(req, res)
+}
+
+module.exports = {readCities, readCityById, deleteCityById, createCity, updateCityById}

@@ -15,11 +15,11 @@ const cityTableDef = {
         is_active: {
             type: 'boolean',
             nullAuthorized: false,
-        },
-        created_at: {
-            type: 'date',
-            nullAuthorized: true,
         }
+    },
+    dateColumns: {
+        createDate: 'created_at',
+        updateDate: null
     }
 }
 

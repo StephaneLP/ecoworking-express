@@ -18,13 +18,13 @@ const checkURIParam = (params, tableDef) => {
         switch (dataType) {
             case 'integer':
                 if (!stringAsInteger(URIParam.value)) {
-                    return {success: false, method: 'checkURIParam', msg: `(URI Param) Erreur type de donnée (colonne '${URIParam.column}', type 'integer' attendu)`}
+                    return {success: false, method: 'validate.checkURIParam', msg: `Erreur type de donnée (colonne '${URIParam.column}', type 'integer' attendu)`}
                 }
                 URIParam.value = Number(URIParam.value)
                 break
             case 'string':
                 if (URIParam.value.length > constraint.length) {
-                    return {success: false, method: 'checkURIParam', msg: `(URI Param) Erreur longueur (colonne '${URIParam.column}', longueur max : ${constraint.length})`}
+                    return {success: false, method: 'validate.checkURIParam', msg: `Erreur longueur (colonne '${URIParam.column}', longueur max : ${constraint.length})`}
                 }
                 break
         }
@@ -32,7 +32,7 @@ const checkURIParam = (params, tableDef) => {
         return {success: true}
     }
     catch(err) {
-        throw new Error(`checkURIParam - ${err.name} (${err.message})`)
+        throw new Error(`validate.checkURIParam - ${err.name} (${err.message})`)
     }
 }
 
@@ -50,7 +50,7 @@ const checkQueryParams = (params, tableDef) => {
             for (let param of queryParams) {
                 constraints = tableDef.tableColumns[param.column]
                 if(!constraints) {
-                    return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Colonne '${param.column}' absente de la BDD`}
+                    return {success: false, method: 'validate.checkQueryParams', msg: `Colonne '${param.column}' absente de la BDD`}
                 }
                 for (let i = 0; i < param.values.length; i++) {
                     value = param.values[i]
@@ -58,18 +58,18 @@ const checkQueryParams = (params, tableDef) => {
                     switch (constraints.type) {
                         case 'integer':
                             if (!stringAsInteger(value)) {
-                                return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
+                                return {success: false, method: 'validate.checkQueryParams', msg: `Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
                             }
                             param.values[i] = Number(value)
                             break
                         case 'string':
                             if (value.length > constraints.length) {
-                                return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Erreur longueur (colonne '${param.column}', string longueur max : ${constraints.length})`}
+                                return {success: false, method: 'validate.checkQueryParams', msg: `Erreur longueur (colonne '${param.column}', string longueur max : ${constraints.length})`}
                             }
                             break
                         case 'boolean':
                             if (!stringAsBoolean(value)) {
-                                return {success: false, method: 'checkQueryParams', msg: `(QUERY Params) Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
+                                return {success: false, method: 'validate.checkQueryParams', msg: `Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
                             }
                             param.values[i] = (['1', 'true'].includes(value.toLowerCase()) ? 1 : 0)
                             break
@@ -81,7 +81,7 @@ const checkQueryParams = (params, tableDef) => {
         return {success: true}
     }
     catch(err) {
-        throw new Error(`checkQueryParams - ${err.name} (${err.message})`)
+        throw new Error(`validate.checkQueryParams - ${err.name} (${err.message})`)
     }
 }
 
@@ -91,14 +91,14 @@ const checkOrderParam = (params, tableDef) => {
         const tableColumns = tableDef.tableColumns
 
         if (!tableColumns[order.column]) {
-            return {success: false, method: 'checkOrderParam', msg: `(QUERY Params) Colonne de tri '${order.column}' absente de la BDD`}
+            return {success: false, method: 'validate.checkOrderParam', msg: `Colonne de tri '${order.column}' absente de la BDD`}
         }
         order.direction = (order.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')
 
         return {success: true}
     }
     catch(err) {
-        throw new Error(`checkOrderParam - ${err.name} (${err.message})`)
+        throw new Error(`validate.checkOrderParam - ${err.name} (${err.message})`)
     }
 }
 
@@ -115,39 +115,45 @@ const checkBodyParams = (params, tableDef) => {
         for (let column in bodyParams) {
             constraints = tableDef.tableColumns[column]
             if(!constraints) {
-                return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Colonne '${column}' absente de la BDD`}
+                return {success: false, method: 'validate.checkBodyParams', msg: `Colonne '${column}' absente de la BDD`}
             }
             value = bodyParams[column]
             if (value === null) {
-                if (!constraints.nullAuthorized) return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Colonne '${column}', valeur null non autorisée`}
+                if (!constraints.nullAuthorized) return {success: false, method: 'validate.checkBodyParams', msg: `Colonne '${column}', valeur null non autorisée`}
                 continue
             }
 
             switch (constraints.type) {
                 case 'integer':
                     if (typeof value !== 'number') {
-                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'number' attendu)`}
+                        return {success: false, method: 'validate.checkBodyParams', msg: `Erreur type de donnée (colonne '${column}', type 'number' attendu)`}
                     }
                     if (!stringAsInteger(String(value))) {
-                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'integer' attendu)`}
+                        return {success: false, method: 'validate.checkBodyParams', msg: `Erreur type de donnée (colonne '${column}', type 'integer' attendu)`}
                     }
                     break
                 case 'string':
                     if (typeof value !== 'string') {
-                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'string' attendu)`}
+                        return {success: false, method: 'validate.checkBodyParams', msg: `Erreur type de donnée (colonne '${column}', type 'string' attendu)`}
                     }
                     if (value.length > constraints.length) {
-                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur longueur (colonne '${column}', longueur max : ${constraints.length})`}
+                        return {success: false, method: 'validate.checkBodyParams', msg: `Erreur longueur (colonne '${column}', longueur max : ${constraints.length})`}
                     }
                     if(!constraints.emptyAuthorized && value === '') {
-                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur longueur (colonne '${column}', colonne vide non autorisée)`}
+                        return {success: false, method: 'validate.checkBodyParams', msg: `Erreur longueur (colonne '${column}', colonne vide non autorisée)`}
                     }
                     break
                 case 'boolean':
                     if (![0,1,true,false].includes(value)) {
-                        return {success: false, method: 'checkBodyParams', msg: `(BODY Param) Erreur type de donnée (colonne '${column}', type 'boolean' attendu)`}
+                        return {success: false, method: 'validate.checkBodyParams', msg: `Erreur type de donnée (colonne '${column}', type 'boolean' attendu)`}
                     }
                     bodyParams[column] = Number(value) // true => 1, false => 0
+                    break
+                case 'date':
+                    if (isNaN(Date.parse(value))) {
+                        return {success: false, method: 'validate.checkBodyParams', msg: `Erreur type de donnée (colonne '${column}', type 'date' attendu / date invalide)`}
+                    }
+                    bodyParams[column] = new Date(value)
                     break
             }
         }
@@ -155,7 +161,7 @@ const checkBodyParams = (params, tableDef) => {
         return {success: true}
     }
     catch(err) {
-        throw new Error(`checkBodyParams - ${err.name} (${err.message})`)
+        throw new Error(`validate.checkBodyParams - ${err.name} (${err.message})`)
     }
 }
 

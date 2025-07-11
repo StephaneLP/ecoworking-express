@@ -99,23 +99,11 @@ const createRecord = (params, tableDef) => {
         try {
             const dbReq = await queries.runQueryInsert(params, tableDef)
 
-            if (!dbReq.success) {
+            if (!dbReq.success || dbReq.result.affectedRows === 0) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
                 log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
                 return                
             }
-
-            // A FINIR
-
-
-
-
-
-
-
-
-
-
 
             res.status(200).json({status: 'success', code: 200, message: params.libelles.success})
             log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method} ; Message : ${dbReq.result.affectedRows} ligne(s) ajoutée(s)`)
@@ -127,4 +115,29 @@ const createRecord = (params, tableDef) => {
     }
 }
 
-module.exports = {readRecords, readRecordById, deleteRecordById, createRecord}
+/*********************************************************
+UPDATE
+*********************************************************/
+
+const updateRecordById = (params, tableDef) => {
+    return async (req, res) => {
+        try {
+            const dbReq = await queries.runQueryUpdateById(params, tableDef)
+console.log(dbReq)
+            if (!dbReq.success || dbReq.result.affectedRows === 0) {
+                res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
+                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
+                return                
+            }
+
+            res.status(200).json({status: 'success', code: 200, message: params.libelles.success})
+            log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method} ; Message : ${dbReq.result.affectedRows} ligne(s) modifée(s)`)
+        }
+        catch(err) {
+            res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
+            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
+        }
+    }
+}
+
+module.exports = {readRecords, readRecordById, deleteRecordById, createRecord, updateRecordById}

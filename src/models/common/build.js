@@ -67,12 +67,12 @@ const sqlDeleteById = (params, tableDef) =>  {
 INSERT INTO
 *********************************************************/
 
-const sqlInsert = (params, dbTableDef) => {
+const sqlInsert = (params, tableDef) => {
     const arrColumns = [], arrParams = [], arrPattern = []
     let constraints, value
 
-    for(let column in dbTableDef.tableColumns) {
-        constraints = dbTableDef.tableColumns[column]
+    for(let column in tableDef.tableColumns) {
+        constraints = tableDef.tableColumns[column]
         value = params.bodyParams[column] || null
 
         if (constraints.autoIncrement) continue
@@ -85,7 +85,46 @@ const sqlInsert = (params, dbTableDef) => {
         arrPattern.push('?')
     }
 
-    return {success: true, reqString: `INSERT INTO ${dbTableDef.tableName} (${arrColumns.join()}) VALUES (${arrPattern.join()})`, reqParams: arrParams}
+    // Date de création
+    const dateColumn = tableDef.dateColumns.createDate
+    if (dateColumn) {
+        arrColumns.push(dateColumn)
+        arrParams.push(new Date())
+        arrPattern.push('?')
+    }
+
+    return {success: true, reqString: `INSERT INTO ${tableDef.tableName} (${arrColumns.join()}) VALUES (${arrPattern.join()})`, reqParams: arrParams}
 }
 
-module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert}
+/*********************************************************
+UPDATE
+*********************************************************/
+
+const sqlUpdateById = (params, tableDef) => {
+    const arrColumns = [], arrParams = []
+     const URIParam = params.URIParam
+
+       let constraints, value
+
+    // Colonnes mises à jour
+    for(let column in params.bodyParams) {
+        arrColumns.push(`${column}=?`)
+        arrParams.push(params.bodyParams[column])
+    }
+
+    // Date de modification
+    const dateColumn = tableDef.dateColumns.updateDate
+    if (dateColumn) {
+        arrColumns.push(`${dateColumn}=?`)
+        arrParams.push(new Date())
+    }
+
+    // Clause WHERE
+    const condition = `${URIParam.column} ${URIParam.op} ?`
+    arrParams.push(URIParam.value)
+    
+    return {success: true, reqString: `UPDATE ${tableDef.tableName} SET ${arrColumns.join()} WHERE ${condition}`, reqParams: arrParams}
+
+}
+
+module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert, sqlUpdateById}

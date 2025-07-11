@@ -3,33 +3,11 @@ const build = require('./build.js')
 const {checkURIParam, checkQueryParams, checkOrderParam, checkBodyParams} = require('./validate.js')
 
 /*********************************************************
-ÉXECUTION DE LA REQUÊTE
-*********************************************************/
-
-const runQuery = async (sql) => {
-    let conn
-    try {
-        conn = await db.getConnection()
-        const result = await conn.query(sql.reqString, sql.reqParams)
-
-        return {success: true, result: result}
-    } 
-    catch (err) {
-
-
-console.log('err : ', err.code)
-        throw new Error(`runQuery - ${err.name} (${err.message})`)
-    } 
-    finally {
-        if (conn) conn.end()
-    }    
-}
-
-/*********************************************************
 SELECT
 *********************************************************/
 
-const runQuerySelect = (params, tableDef) => {
+const runQuerySelect = async (params, tableDef) => {
+    let conn
     try {
         let check
 
@@ -43,14 +21,23 @@ const runQuerySelect = (params, tableDef) => {
 
         // Construction et éxecution de la requête SQL
         const sql = build.sqlSelect(params, tableDef)
-        return runQuery(sql)
+
+        // Éxecution de la requête
+        conn = await db.getConnection()
+        const result = await conn.query(sql.reqString, sql.reqParams)
+
+        return {success: true, result: result}
     }
     catch(err) {
         throw new Error(`${err.message}`)
-    }        
+    }
+    finally {
+        if (conn) conn.end()
+    }
 }
 
-const runQuerySelectById = (params, tableDef) => {
+const runQuerySelectById = async (params, tableDef) => {
+    let conn
     try {
         // Validation du URI Parameter
         const check = checkURIParam(params, tableDef)
@@ -59,18 +46,26 @@ const runQuerySelectById = (params, tableDef) => {
         // Construction et éxecution de la requête SQL
         const sql = build.sqlSelectById(params, tableDef)
 
-        return runQuery(sql)
+        // Éxecution de la requête
+        conn = await db.getConnection()
+        const result = await conn.query(sql.reqString, sql.reqParams)
+
+        return {success: true, result: result}
     }
     catch(err) {
         throw new Error(`${err.message}`)
-    }        
+    }
+    finally {
+        if (conn) conn.end()
+    }
 }
 
 /*********************************************************
 DELETE
 *********************************************************/
 
-const runQueryDeleteById = (params, tableDef) => {
+const runQueryDeleteById = async (params, tableDef) => {
+    let conn
     try {
         // Validation du Path Parameter
         const check = checkURIParam(params, tableDef)
@@ -79,18 +74,26 @@ const runQueryDeleteById = (params, tableDef) => {
         // Construction et éxecution de la requête SQL
         const sql = build.sqlDeleteById(params, tableDef)
 
-        return runQuery(sql)
+        // Éxecution de la requête
+        conn = await db.getConnection()
+        const result = await conn.query(sql.reqString, sql.reqParams)
+
+        return {success: true, result: result}
     }
     catch(err) {
         throw new Error(`${err.message}`)
-    }     
+    }
+    finally {
+        if (conn) conn.end()
+    }
 }
 
 /*********************************************************
 INSERT INTO
 *********************************************************/
 
-const runQueryInsert = (params, tableDef) => {
+const runQueryInsert = async (params, tableDef) => {
+    let conn
     try {
         // Validation des data (body)
         const check = checkBodyParams(params, tableDef)
@@ -99,11 +102,56 @@ const runQueryInsert = (params, tableDef) => {
         //Construction et éxecution de la requête SQL
         const sql = build.sqlInsert(params, tableDef)
 
-        return runQuery(sql)
+        // Éxecution de la requête
+        conn = await db.getConnection()
+        const result = await conn.query(sql.reqString, sql.reqParams)
+
+        return {success: true, result: result}
     }
     catch(err) {
+        if (err.code && err.code === 'ER_DUP_ENTRY') {
+            return {success: false, method: 'queries.runQueryInsert', msg: `Violation de la contrainte d'unicité - ${err.message}`}
+        }
         throw new Error(`${err.message}`)
+    }
+    finally {
+        if (conn) conn.end()
     }
 }
 
-module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById, runQueryInsert}
+/*********************************************************
+UPDATE
+*********************************************************/
+
+const runQueryUpdateById = async (params, tableDef) => {
+    let conn, check
+    try {
+        // Validation du Path Parameter
+        check = checkURIParam(params, tableDef)
+        if (!check.success) return check
+
+        // Validation des data (body)
+        check = checkBodyParams(params, tableDef)
+        if (!check.success) return check
+
+        //Construction et éxecution de la requête SQL
+        const sql = build.sqlUpdateById(params, tableDef)
+
+        // Éxecution de la requête
+        conn = await db.getConnection()
+        const result = await conn.query(sql.reqString, sql.reqParams)
+
+        return {success: true, result: result}
+    }
+    catch(err) {
+        if (err.code && err.code === 'ER_DUP_ENTRY') {
+            return {success: false, method: 'queries.runQueryUpdateById', msg: `Violation de la contrainte d'unicité - ${err.message}`}
+        }
+        throw new Error(`${err.message}`)
+    }
+    finally {
+        if (conn) conn.end()
+    }
+}
+
+module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById, runQueryInsert, runQueryUpdateById}
