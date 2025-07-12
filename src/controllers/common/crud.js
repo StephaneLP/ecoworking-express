@@ -123,7 +123,7 @@ const updateRecordById = (params, tableDef) => {
     return async (req, res) => {
         try {
             const dbReq = await queries.runQueryUpdateById(params, tableDef)
-console.log(dbReq)
+
             if (!dbReq.success || dbReq.result.affectedRows === 0) {
                 res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
                 log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)

@@ -5,16 +5,17 @@ const cityTableDef = {
             type: 'integer',
             nullAuthorized: false,
             autoIncrement: true,
+            primaryKey: true
         },
         name: {
             type: 'string',
             nullAuthorized: false,
             length: 100,
-            emptyAuthorized: false,
+            emptyAuthorized: false
         },
         is_active: {
             type: 'boolean',
-            nullAuthorized: false,
+            nullAuthorized: false
         }
     },
     dateColumns: {
