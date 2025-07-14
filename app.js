@@ -34,9 +34,11 @@ Routes
 
 const cityRoutes = require('./src/routes/city.routes.js')
 const ecoworkingRoutes = require('./src/routes/ecoworking.routes.js')
+const userRoutes = require('./src/routes/user.routes.js')
 
 app.use('/ville/', cityRoutes)
 app.use('/ecoworking/', ecoworkingRoutes)
+app.use('/utilisateur/', userRoutes)
 
 /*********************************************************
 Ouverture du port

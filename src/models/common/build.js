@@ -73,10 +73,10 @@ const sqlInsert = (params, tableDef) => {
 
     for(let column in tableDef.tableColumns) {
         constraints = tableDef.tableColumns[column]
-        value = params.bodyParams[column] || null
+        value = params.bodyParams[column] === undefined ? null : params.bodyParams[column]
 
         if (constraints.autoIncrement) continue
-        if (!constraints.nullAuthorized && !value) {
+        if (!constraints.nullAuthorized && value === null) {
             return {success: false, method: 'build.sqlInsert', msg: `Colonne '${column}' : Null non autorisé`}
         }
 

@@ -1,3 +1,9 @@
+const bcrypt = require('bcrypt')
+
+/*********************************************************
+ANALYSE DES PARAMETRES (URI, QUERY, BODY)
+*********************************************************/
+
 function trimStringValues(reqQuery) {
     const query = {}
     
@@ -26,4 +32,21 @@ function booleanToNumber(str) {
     return str
 }
 
-module.exports = {trimStringValues, stringAsInteger, stringAsBoolean, booleanToNumber}
+/*********************************************************
+HACHAGE DU MOT DE PASSE
+*********************************************************/
+
+const saltRounds = 10
+
+const hashPassword = async (password) => {
+    try {
+        const salt = await bcrypt.genSalt(saltRounds)
+        const hashedPassword = await bcrypt.hash(password, salt)
+
+        return {success: true, password: hashedPassword}
+    } catch (err) {
+        return {success: false, msg: `${err.name}, ${err.message}`}
+    }
+}
+
+module.exports = {trimStringValues, stringAsInteger, stringAsBoolean, booleanToNumber, hashPassword}

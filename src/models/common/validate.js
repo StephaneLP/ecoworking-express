@@ -8,8 +8,8 @@ const checkURIParam = (params, tableDef) => {
     const URIParam = params.URIParam
     const tableColumns = tableDef.tableColumns
 
-    if (!URIParam || !URIParam.column || !URIParam.op || !URIParam.value) {
-        return {success: false, msg: `La chaîne PathParameter est vide/incomplète`}
+    if (!URIParam.value) {
+        return {success: false, msg: 'La chaîneURIParameter est vide'}
     }
     try {
         const constraint = tableColumns[URIParam.column]
@@ -88,9 +88,8 @@ const checkQueryParams = (params, tableDef) => {
 const checkOrderParam = (params, tableDef) => {
     try {
         const order = params.order
-        const tableColumns = tableDef.tableColumns
 
-        if (!tableColumns[order.column]) {
+        if (!tableDef.tableColumns[order.column]) {
             return {success: false, method: 'validate.checkOrderParam', msg: `Colonne de tri '${order.column}' absente de la BDD`}
         }
         order.direction = (order.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')
@@ -110,7 +109,7 @@ const checkBodyParams = (params, tableDef) => {
     const bodyParams = params.bodyParams
 
     try {
-        let value, constraints, emptyAuthorized
+        let value, constraints
 
         for (let column in bodyParams) {
             constraints = tableDef.tableColumns[column]
@@ -122,7 +121,6 @@ const checkBodyParams = (params, tableDef) => {
                 if (!constraints.nullAuthorized) return {success: false, method: 'validate.checkBodyParams', msg: `Colonne '${column}', valeur null non autorisée`}
                 continue
             }
-
             switch (constraints.type) {
                 case 'integer':
                     if (typeof value !== 'number') {

@@ -3,7 +3,8 @@ const roleTableDef = {
     tableColumns: {
         id: {
             type: 'integer',
-            nullAuthorized: false
+            nullAuthorized: false,
+            primaryKey: true
         },
         name: {
             type: 'string',

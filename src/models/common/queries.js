@@ -1,4 +1,4 @@
-const db = require('../../config/db.js')
+const db = require('../../config/db')
 const build = require('./build.js')
 const {checkURIParam, checkQueryParams, checkOrderParam, checkBodyParams} = require('./validate.js')
 
@@ -101,6 +101,7 @@ const runQueryInsert = async (params, tableDef) => {
 
         //Construction et éxecution de la requête SQL
         const sql = build.sqlInsert(params, tableDef)
+        if (!sql.success) return sql
 
         // Éxecution de la requête
         conn = await db.getConnection()
@@ -109,10 +110,10 @@ const runQueryInsert = async (params, tableDef) => {
         return {success: true, result: result}
     }
     catch(err) {
-        if (err.code && err.code === 'ER_DUP_ENTRY') {
-            return {success: false, method: 'queries.runQueryInsert', msg: `Violation de la contrainte d'unicité - ${err.message}`}
+        if (err.code) {
+            return {success: false, method: 'queries.runQueryUpdateById', msg: `Code : ${err.code}, Message : Violation de la contrainte d'unicité - ${err.message}`}
         }
-        throw new Error(`${err.message}`)
+        throw new Error(err.message)
     }
     finally {
         if (conn) conn.end()
@@ -144,8 +145,8 @@ const runQueryUpdateById = async (params, tableDef) => {
         return {success: true, result: result}
     }
     catch(err) {
-        if (err.code && err.code === 'ER_DUP_ENTRY') {
-            return {success: false, method: 'queries.runQueryUpdateById', msg: `Violation de la contrainte d'unicité - ${err.message}`}
+        if (err.code) {
+            return {success: false, method: 'queries.runQueryUpdateById', msg: `Code : ${err.code}, Message : Violation de la contrainte d'unicité - ${err.message}`}
         }
         throw new Error(`${err.message}`)
     }

@@ -11,6 +11,7 @@
   "author": "stéphane le pajolec",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
     "mariadb": "^3.4.2",
     "serve-favicon": "^2.5.1"

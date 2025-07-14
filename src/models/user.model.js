@@ -1,5 +1,5 @@
 const userTableDef = {
-    tableName: 'city',
+    tableName: 'user',
     tableColumns: {
         id: {
             type: 'integer',
@@ -7,16 +7,16 @@ const userTableDef = {
             autoIncrement: true,
             primaryKey: true
         },
-        nickname: {
-            type: 'string',
-            nullAuthorized: false,
-            length: 10,
-            emptyAuthorized: false,
-        },
         email: {
             type: 'string',
             nullAuthorized: false,
             length: 254,
+            emptyAuthorized: false,
+        },
+        nickname: {
+            type: 'string',
+            nullAuthorized: false,
+            length: 10,
             emptyAuthorized: false,
         },
         is_verified: {

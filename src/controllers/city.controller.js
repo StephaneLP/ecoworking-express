@@ -1,5 +1,5 @@
 const {cityTableDef} = require('../models/city.model')
-const {trimStringValues, booleanToNumber} = require('../utils/tools')
+const {trimStringValues} = require('../utils/tools')
 const crud = require('./common/crud')
 
 /*********************************************************
@@ -16,7 +16,7 @@ const readCities = (req, res) => {
     if(queryParams.is_active) arrQueryParams.push({column: 'is_active', op: '=', values: [queryParams.is_active]})
 
     const params = {
-        columns: 'id, name, is_active, created_at, DATE_FORMAT(created_at, \'%Y-%m-%d %H:%i:%s\') AS created_at_lib',
+        columns: 'id, name, is_active, DATE_FORMAT(created_at, \'%Y-%m-%d %H:%i:%s\') AS created_at, DATE_FORMAT(updated_at, \'%Y-%m-%d %H:%i:%s\') AS updated_at',
         queryParams: arrQueryParams,
         order: {column: queryParams.sort || 'name', direction: queryParams.dir || 'ASC'},
         libelles: {
