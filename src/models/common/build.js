@@ -36,7 +36,7 @@ const sqlSelect = (params, tableDef) =>  {
 
     const strConditions = arrConditions.join(' AND ')
     const sqlWhereClause = strConditions ? ` WHERE ${strConditions}` : ''
-    const sqlOrderClause = ` ORDER BY ${params.order.column} ${params.order.direction}`
+    const sqlOrderClause = (params.order ? ` ORDER BY ${params.order.column} ${params.order.direction}` : '')
 
     return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}${sqlOrderClause}`, reqParams: arrParams}
 }

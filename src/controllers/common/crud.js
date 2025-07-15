@@ -140,4 +140,17 @@ const updateRecordById = (params, tableDef) => {
     }
 }
 
-module.exports = {readRecords, readRecordById, deleteRecordById, createRecord, updateRecordById}
+/*********************************************************
+REQUÊTES INTERNES
+*********************************************************/
+
+const getRecordByParams = async (params, tableDef) => {
+    try {
+        return await queries.runGetRecordByParams(params, tableDef)
+    }
+    catch(err) {
+        throw new Error(`${err.message}`)
+    }
+}
+
+module.exports = {readRecords, readRecordById, deleteRecordById, createRecord, updateRecordById, getRecordByParams}

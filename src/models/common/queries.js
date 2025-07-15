@@ -19,7 +19,7 @@ const runQuerySelect = async (params, tableDef) => {
         check = checkOrderParam(params, tableDef)
         if (!check.success) return check
 
-        // Construction et éxecution de la requête SQL
+        // Construction de la requête SQL
         const sql = build.sqlSelect(params, tableDef)
 
         // Éxecution de la requête
@@ -43,7 +43,7 @@ const runQuerySelectById = async (params, tableDef) => {
         const check = checkURIParam(params, tableDef)
         if (!check.success) return check
 
-        // Construction et éxecution de la requête SQL
+        // Construction de la requête SQL
         const sql = build.sqlSelectById(params, tableDef)
 
         // Éxecution de la requête
@@ -71,7 +71,7 @@ const runQueryDeleteById = async (params, tableDef) => {
         const check = checkURIParam(params, tableDef)
         if (!check.success) return check
 
-        // Construction et éxecution de la requête SQL
+        // Construction de la requête SQL
         const sql = build.sqlDeleteById(params, tableDef)
 
         // Éxecution de la requête
@@ -99,7 +99,7 @@ const runQueryInsert = async (params, tableDef) => {
         const check = checkBodyParams(params, tableDef)
         if (!check.success) return check
 
-        //Construction et éxecution de la requête SQL
+        // Construction de la requête SQL
         const sql = build.sqlInsert(params, tableDef)
         if (!sql.success) return sql
 
@@ -135,7 +135,7 @@ const runQueryUpdateById = async (params, tableDef) => {
         check = checkBodyParams(params, tableDef)
         if (!check.success) return check
 
-        //Construction et éxecution de la requête SQL
+        // Construction de la requête SQL
         const sql = build.sqlUpdateById(params, tableDef)
 
         // Éxecution de la requête
@@ -155,4 +155,26 @@ const runQueryUpdateById = async (params, tableDef) => {
     }
 }
 
-module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById, runQueryInsert, runQueryUpdateById}
+/*********************************************************
+FONCTIONS SPÉCIFIQUES
+*********************************************************/
+
+const runGetRecordByParams = async (params, tableDef) => {
+    let conn
+    try {
+        // Construction de la requête SQL
+        const sql = build.sqlSelect(params, tableDef)
+
+        // Éxecution de la requête
+        conn = await db.getConnection()
+        return await conn.query(sql.reqString, sql.reqParams)
+    }
+    catch(err) {
+        throw new Error(`${err.message}`)
+    }
+    finally {
+        if (conn) conn.end()
+    }
+}
+
+module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById, runQueryInsert, runQueryUpdateById, runGetRecordByParams}
