@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
-const log = require('../utils/log')
 const crud = require('./common/crud')
 const {userTableDef} = require('../models/user.model')
+const {sendError} = require('../utils/result')
 const tools = require('../utils/tools')
 
 /*********************************************************
@@ -13,31 +13,23 @@ const createUser = async (req, res) => {
 
     // Contrôle du format l'email
     if (!tools.checkEmailFormat(body.email)) {
-        res.status(400).json({status: 'error', code: 400, message: 'Le format de l\'email est incorrect'})
-        log.addError(`Code : 400 ; Fonction : createUser ; Message : Format de l\'email incorrect`)
-        return      
+        return sendError(res, 400, 'createUser', 'Le format de l\'email est incorrect', '')    
     }
 
     // Contrôle du format du pseudo
     if (!tools.checkNickNameFormat(body.nickname)) {
-        res.status(400).json({status: 'error', code: 400, message: 'Le format du pseudo est incorrect'})
-        log.addError(`Code : 400 ; Fonction : createUser ; Message : Format du pseudo incorrect`)
-        return          
+        return sendError(res, 400, 'createUser', 'Le format du pseudo est incorrect', '')      
     }
 
     // Contrôle du format du mot de passe
     if (!tools.checkPasswordFormat(body.password)) {
-        res.status(400).json({status: 'error', code: 400, message: 'Le format du mot de passe est incorrect'})
-        log.addError(`Code : 400 ; Fonction : createUser ; Message : Format du mot de passe incorrect`)
-        return          
+        return sendError(res, 400, 'createUser', 'Le format du mot de passe est incorrect', '')        
     }
 
     // Hachage du mot de passe
     const hash = await tools.hashPassword(body.password)
     if (!hash.success) {
-        res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
-        log.addError(`Code : 500 ; Fonction : createUser/hashPassword ; Message : ${hash.msg}`)
-        return
+        return sendError(res, 500, 'createUser/hashPassword', 'Erreur Serveur', hash.msg)
     }
     body.password = hash.password
 
@@ -71,9 +63,7 @@ const connectUser = async (req, res) => {
     try {
         // Vérification de la présence des paramètres dans le body
         if (!email || !password) {
-            res.status(400).json({status: 'error', code: 400, message: 'Connexion impossible, email ou mot de passe manquant'})
-            log.addError(`Code : 400 ; Fonction : createUser ; Message : Connexion impossible, email ou mot de passe manquant`)
-            return
+            return sendError(res, 400, 'connectUser', 'Connexion impossible, email ou mot de passe manquant', '')
         }
 
         // Requête pour trouver l'utilisateur correspondant à l'email
@@ -84,27 +74,22 @@ const connectUser = async (req, res) => {
 
         // Un utilisateur a-t'il été trouvé ? Si non message d'erreur
         if (user.length === 0) {
-            res.status(401).json({status: 'error', code: 401, message: 'Identifiant ou mot de passe incorrect'})
-            log.addError('Code : 401 ; Fonction : connectUser ; Message : Identifiant ou mot de passe incorrect')
-            return
+            return sendError(res, 401, 'connectUser', 'Identifiant ou mot de passe incorrect', '')
         }
 
         // Le mot de passe correspond-il ? Si non message d'erreur
         const match = await tools.comparePasswords(password, user[0].password)
         if (!match) {
-            res.status(401).json({status: 'error', code: 401, message: 'Identifiant ou mot de passe incorrect'})
-            log.addError('Code : 401 ; Fonction : connectUser ; Message : Identifiant ou mot de passe incorrect')
-            return
+            return sendError(res, 401, 'connectUser', 'Identifiant ou mot de passe incorrect', '')
         }
         
         // Création du token et réponse au client
-        const token = jwt.sign({data: user[0].id}, process.env.JWT_CONNECT_KEY, {expiresIn: '48h'})
+        const token = jwt.sign({userId: user[0].id}, process.env.SECRET_JWT_KEY, {expiresIn: '48h'})
         res.status(200).json({status: 'success', code: 200, data: {token: token, nickname: user[0].nickname}})
         log.addRequest('Code : 200 ; Fonction : connectUser ; Message : Connexion réussie, token envoyé')
     }
     catch(err) {
-        res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
-        log.addError(`Code : 500 ; Fonction : connectUser ; Message : ${err.message}`)
+        sendError(res, 500, 'connectUser', 'Erreur Serveur', err.message)
     }
 }
 

@@ -1,4 +1,4 @@
-const log = require('../../utils/log')
+const {sendResult, sendError} = require('../../utils/result')
 const queries = require('../../models/common/queries')
 
 /*********************************************************
@@ -11,17 +11,13 @@ const readRecords = (params, tableDef) => {
             const dbReq = await queries.runQuerySelect(params, tableDef)
 
             if (!dbReq.success) {
-                res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
-                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
-                return                
+                return sendError(res, 400, `${params.libelles.method}/${dbReq.method}`, 'Erreur Requête', 'dbReq.msg')
             }
 
-            res.status(200).json({status: 'success', code: 200, rows: dbReq.result.length, data: dbReq.result})
-            log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method}`)
+            sendResult(res, 200, params.libelles.method, '', dbReq.result.length, dbReq.result)
         }
         catch(err) {
-            res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
-            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
+            sendError(res, 500, params.libelles.method, 'Erreur Serveur', err.message)
         }
     }
 }
@@ -32,23 +28,17 @@ const readRecordById = (params, tableDef) => {
             const dbReq = await queries.runQuerySelectById(params, tableDef)
 
             if (!dbReq.success) {
-                res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
-                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
-                return                
+                return sendError(res, 400, `${params.libelles.method}/${dbReq.method}`, 'Erreur Requête', dbReq.msg)               
             }
 
             if (dbReq.result.length === 0) {
-                res.status(404).json({status: 'error', code: 404, message: params.libelles.fail})
-                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Pas de résultat (tableau vide)`)
-                return
+                return sendError(res, 404, params.libelles.method, params.libelles.fail, 'Pas de résultat (tableau vide)')
             }
 
-            res.status(200).json({status: 'success', code: 200, data: dbReq.result})
-            log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method}`)
+            sendResult(res, 200, params.libelles.method, '', dbReq.result.length, dbReq.result)
         }
         catch(err) {
-            res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
-            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
+            sendError(res, 500, params.libelles.method, 'Erreur Serveur', err.message)
         }
     }
 }
@@ -63,23 +53,18 @@ const deleteRecordById = (params, tableDef) => {
             const dbReq = await queries.runQueryDeleteById(params, tableDef)
 
             if (!dbReq.success) {
-                res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
-                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
-                return
+                return sendError(res, 400, `${params.libelles.method}/${dbReq.method}`, 'Erreur Requête', dbReq.msg)
             }
 
             if (dbReq.result.affectedRows === 0) {
-                res.status(404).json({status: 'error', code: 404, message: params.libelles.fail})
-                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : La ligne n'a pas été supprimée (id: ${params.URIParam.value})`)
-                return
+                return sendError(res, 404, params.libelles.method, params.libelles.fail, `La ligne n'a pas été supprimée (id: ${params.URIParam.value})`)
             }
 
             res.status(200).json({status: 'success', code: 200, message: params.libelles.success})
             log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method} ; Message : ${dbReq.result.affectedRows} ligne(s) supprimée(s)`)
         }
         catch(err) {
-            res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
-            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)            
+            sendError(res, 500, params.libelles.method, 'Erreur Serveur', err.message)            
         }
     }
 }
@@ -94,17 +79,14 @@ const createRecord = (params, tableDef) => {
             const dbReq = await queries.runQueryInsert(params, tableDef)
 
             if (!dbReq.success) {
-                res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
-                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
-                return                
+                return sendError(res, 400, `${params.libelles.method}/${dbReq.method}`, 'Erreur Requête', dbReq.msg)            
             }
 
             res.status(200).json({status: 'success', code: 200, message: params.libelles.success})
             log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method} ; Message : ${dbReq.result.affectedRows} ligne(s) ajoutée(s)`)
         }
         catch(err) {
-            res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
-            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
+            sendError(res, 500, params.libelles.method, 'Erreur Serveur', err.message)
         }
     }
 }
@@ -119,23 +101,18 @@ const updateRecordById = (params, tableDef) => {
             const dbReq = await queries.runQueryUpdateById(params, tableDef)
 
             if (!dbReq.success) {
-                res.status(400).json({status: 'error', code: 400, message: 'Erreur Requête'})
-                log.addError(`Code : 400 ; Fonction : ${params.libelles.method}/${dbReq.method} ; Message : ${dbReq.msg}`)
-                return                
+                return sendError(res, 400, `${params.libelles.method}/${dbReq.method}`, 'Erreur Requête', dbReq.msg)              
             }
 
             if (dbReq.result.affectedRows === 0) {
-                res.status(404).json({status: 'error', code: 404, message: 'Auncune ligne ne correspond à la sélection'})
-                log.addError(`Code : 404 ; Fonction : ${params.libelles.method} ; Message : Auncune ligne ne correspond à la sélection`)
-                return                
+                return sendError(res, 404, params.libelles.method, 'Auncune ligne ne correspond à la sélection', 'Auncune ligne ne correspond à la sélection')              
             }
 
             res.status(200).json({status: 'success', code: 200, message: params.libelles.success})
             log.addRequest(`Code : 200 ; Fonction : ${params.libelles.method} ; Message : ${dbReq.result.affectedRows} ligne(s) modifée(s)`)
         }
         catch(err) {
-            res.status(500).json({status: 'error', code: 500, message: 'Erreur Serveur'})
-            log.addError(`Code : 500 ; Fonction : ${params.libelles.method} ; Message : ${err.message}`)
+            sendError(res, 500, params.libelles.method, 'Erreur Serveur', err.message)
         }
     }
 }
