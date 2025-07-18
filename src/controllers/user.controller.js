@@ -41,11 +41,7 @@ const createUser = async (req, res) => {
 
     const params = {
         bodyParams: body,
-        libelles: {
-            method: 'createUser',
-            fail: 'Une erreur est survenue lors de la création du compte',
-            success: 'Le compte a bien été créé',
-        }
+        functionName: 'createUser',
     }
 
     crud.createRecord(params, userTableDef)(req, res)
@@ -85,8 +81,7 @@ const connectUser = async (req, res) => {
         
         // Création du token et réponse au client
         const token = jwt.sign({userId: user[0].id}, process.env.SECRET_JWT_KEY, {expiresIn: '48h'})
-        res.status(200).json({status: 'success', code: 200, data: {token: token, nickname: user[0].nickname}})
-        log.addRequest('Code : 200 ; Fonction : connectUser ; Message : Connexion réussie, token envoyé')
+        sendResult(res, 200, 'connectUser', 'Authentification validée (1 token envoyé)', 1, [{token: token, nickname: user[0].nickname}])
     }
     catch(err) {
         sendError(res, 500, 'connectUser', 'Erreur Serveur', err.message)

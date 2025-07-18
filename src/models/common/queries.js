@@ -1,26 +1,26 @@
 const db = require('../../config/db')
 const build = require('./build.js')
-const {checkURIParam, checkQueryParams, checkOrderParam, checkBodyParams} = require('./validate.js')
+const {checkURIParam, checkQueryParams, checkOrderParams, checkBodyParams} = require('./validate.js')
 
 /*********************************************************
 SELECT
 *********************************************************/
 
-const runQuerySelect = async (params, tableDef) => {
+const runQuerySelect = async (params) => {
     let conn
     try {
         let check
 
         // Validation des Paramètres (clause WHERE)
-        check = checkQueryParams(params, tableDef)
+        check = checkQueryParams(params)
         if (!check.success) return check
 
         // Validation du tri (clause ORDER)
-        check = checkOrderParam(params, tableDef)
+        check = checkOrderParams(params)
         if (!check.success) return check
 
         // Construction de la requête SQL
-        const sql = build.sqlSelect(params, tableDef)
+        const sql = build.sqlSelect(params)
 
         // Éxecution de la requête
         conn = await db.getConnection()
@@ -36,43 +36,15 @@ const runQuerySelect = async (params, tableDef) => {
     }
 }
 
-const runQuerySelectById = async (params, tableDef) => {
+const runQuerySelectById = async (params) => {
     let conn
     try {
         // Validation du URI Parameter
-        const check = checkURIParam(params, tableDef)
+        const check = checkURIParam(params)
         if (!check.success) return check
 
         // Construction de la requête SQL
-        const sql = build.sqlSelectById(params, tableDef)
-
-        // Éxecution de la requête
-        conn = await db.getConnection()
-        const result = await conn.query(sql.reqString, sql.reqParams)
-
-        return {success: true, result: result}
-    }
-    catch(err) {
-        throw new Error(`${err.message}`)
-    }
-    finally {
-        if (conn) conn.end()
-    }
-}
-
-/*********************************************************
-DELETE
-*********************************************************/
-
-const runQueryDeleteById = async (params, tableDef) => {
-    let conn
-    try {
-        // Validation du Path Parameter
-        const check = checkURIParam(params, tableDef)
-        if (!check.success) return check
-
-        // Construction de la requête SQL
-        const sql = build.sqlDeleteById(params, tableDef)
+        const sql = build.sqlSelectById(params)
 
         // Éxecution de la requête
         conn = await db.getConnection()
@@ -92,15 +64,15 @@ const runQueryDeleteById = async (params, tableDef) => {
 INSERT INTO
 *********************************************************/
 
-const runQueryInsert = async (params, tableDef) => {
+const runQueryInsert = async (params) => {
     let conn
     try {
         // Validation des data (body)
-        const check = checkBodyParams(params, tableDef)
+        const check = checkBodyParams(params)
         if (!check.success) return check
 
         // Construction de la requête SQL
-        const sql = build.sqlInsert(params, tableDef)
+        const sql = build.sqlInsert(params)
         if (!sql.success) return sql
 
         // Éxecution de la requête
@@ -111,7 +83,7 @@ const runQueryInsert = async (params, tableDef) => {
     }
     catch(err) {
         if (err.code) {
-            return {success: false, method: 'queries.runQueryUpdateById', msg: `Code : ${err.code}, Message : Violation de la contrainte d'unicité - ${err.message}`}
+            return {success: false, functionName: 'queries.runQueryUpdateById', msg: `Code : ${err.code}, Message : Violation de la contrainte d'unicité - ${err.message}`}
         }
         throw new Error(err.message)
     }
@@ -124,19 +96,19 @@ const runQueryInsert = async (params, tableDef) => {
 UPDATE
 *********************************************************/
 
-const runQueryUpdateById = async (params, tableDef) => {
+const runQueryUpdateById = async (params) => {
     let conn, check
     try {
         // Validation du Path Parameter
-        check = checkURIParam(params, tableDef)
+        check = checkURIParam(params)
         if (!check.success) return check
 
         // Validation des data (body)
-        check = checkBodyParams(params, tableDef)
+        check = checkBodyParams(params)
         if (!check.success) return check
 
         // Construction de la requête SQL
-        const sql = build.sqlUpdateById(params, tableDef)
+        const sql = build.sqlUpdateById(params)
 
         // Éxecution de la requête
         conn = await db.getConnection()
@@ -146,8 +118,36 @@ const runQueryUpdateById = async (params, tableDef) => {
     }
     catch(err) {
         if (err.code) {
-            return {success: false, method: 'queries.runQueryUpdateById', msg: `Code : ${err.code}, Message : Violation de la contrainte d'unicité - ${err.message}`}
+            return {success: false, functionName: 'queries.runQueryUpdateById', msg: `Code : ${err.code}, Message : Violation de la contrainte d'unicité - ${err.message}`}
         }
+        throw new Error(`${err.message}`)
+    }
+    finally {
+        if (conn) conn.end()
+    }
+}
+
+/*********************************************************
+DELETE
+*********************************************************/
+
+const runQueryDeleteById = async (params) => {
+    let conn
+    try {
+        // Validation du Path Parameter
+        const check = checkURIParam(params)
+        if (!check.success) return check
+
+        // Construction de la requête SQL
+        const sql = build.sqlDeleteById(params)
+
+        // Éxecution de la requête
+        conn = await db.getConnection()
+        const result = await conn.query(sql.reqString, sql.reqParams)
+
+        return {success: true, result: result}
+    }
+    catch(err) {
         throw new Error(`${err.message}`)
     }
     finally {
