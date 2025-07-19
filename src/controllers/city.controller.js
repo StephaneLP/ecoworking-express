@@ -13,13 +13,7 @@ const readCities = (req, res) => {
     const arrTables = ['city']
     const arrColumns = [{
         tableDef: cityTableDef,
-        columns: [
-            'id',
-            'name',
-            'is_active',
-            'DATE_FORMAT(created_at,\'%Y-%m-%d %H:%i:%s\') AS created_at',
-            'DATE_FORMAT(updated_at,\'%Y-%m-%d %H:%i:%s\') AS updated_at'                
-        ]
+        columns: ['name', 'is_active', 'created_at', 'updated_at']
     }]
 
     // FILTRE (clause WHERE)
@@ -38,6 +32,7 @@ const readCities = (req, res) => {
         columns: arrColumns,
         queryParams: arrQueryParams,
         order: arrOrder,
+        dateFormat: '%Y-%m-%d %H:%i:%s',
         functionName: 'readCities',
     }
 
@@ -45,19 +40,18 @@ const readCities = (req, res) => {
 }
 
 const readCityById = (req, res) => {
-    /* TABLES & COLONNES (SELECT...FROM...) ***************/
-    const columns = [
-        'id',
-        'name',
-        'is_active',
-        'DATE_FORMAT(created_at,\'%Y-%m-%d %H:%i:%s\') AS created_at',
-        'DATE_FORMAT(updated_at,\'%Y-%m-%d %H:%i:%s\') AS updated_at'
-    ]
+    // TABLES & COLONNES (SELECT...FROM...)
+    const arrTables = ['city']
+    const arrColumns = [{
+        tableDef: cityTableDef,
+        columns: ['name', 'is_active', 'created_at', 'updated_at']
+    }]
 
     const params = {
-        tableDef: [cityTableDef],
-        columns: columns,
-        URIParam: {column: 'id', op: '=', value: req.params.id.trim()},
+        tables: arrTables,
+        columns: arrColumns,
+        URIParam: {tableDef: cityTableDef, column: 'id', op: '=', value: req.params.id.trim()},
+        dateFormat: '%Y-%m-%d %H:%i:%s',
         functionName: 'readCityById',
     }
 

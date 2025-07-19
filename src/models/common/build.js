@@ -1,85 +1,46 @@
+const {buildColumnsList, buildFromConditions, buildWhereConditions, buildSortConditions} = require('./tools')
+
 /*********************************************************
 SELECT
 *********************************************************/
 
 const sqlSelect = (params) =>  {
-    // SELECT : colonnes 
+    // SELECT : liste des colonnes
     const oneTable = (params.tables.length === 1)
-    const arrColumns = []
-    let tableName, reqColumns = '*'
-
-    if (params.columns) {
-        for (let objColumns of params.columns) {
-            tableName = (oneTable ? '' : objColumns.tableDef.tableName + '.')
-            for (let column of objColumns.columns) {
-                arrColumns.push(tableName + column)
-            }
-        }
-        reqColumns = arrColumns.join(', ')
-    }
+    let reqColumns = '*'
+    if (params.columns) reqColumns = [...buildColumnsList(params, oneTable)].join(', ')
 
     // FROM : tables et jointures
-    let reqFROM = params.tables[0]
+    const reqFROM = buildFromConditions(params)
 
-    for (let key in params.tables) {
-        if (key > 0) {
-            reqFROM += ` INNER JOIN ${params.tables[key][0]}`
-            reqFROM += ` ON ${params.tables[key][1]}`
-        }
-    }
-
-    // WHERE : conditions
-    const arrParams = [], arrConditions = [], arrPattern = []
-    let value, pattern
-
-    for (let param of params.queryParams) {
-        switch (param.op.toUpperCase()) {
-            case 'LIKE':
-                value = param.values[0]
-                value = value.replace('%', '\\%')       
-                value = value.replace('_', '\\_')
-                value = param.pattern.replace('?', value)
-                arrParams.push(value)
-                pattern = '?'
-                break
-            case 'IN':
-                param.values.forEach(e => {
-                    arrPattern.push('?')
-                    arrParams.push(e)
-                })
-                pattern = `(${arrPattern.join()})`
-                break
-            default:
-                value = param.values[0]
-                arrParams.push(value)
-                pattern = '?'
-
-        }
-        tableName = (oneTable ? '' : param.tableDef.tableName + '.')
-        arrConditions.push(`${tableName + param.column} ${param.op} ${pattern}`)
-    }
-    const reqConditions = arrConditions.join(' AND ')
+    // WHERE : liste des conditions et tableau des valeurs
+    const conditions = buildWhereConditions(params, oneTable)
+    const arrParams = [...conditions.params]
+    const reqConditions = [...conditions.conditions].join(' AND ')
     const reqWhere = reqConditions ? ` WHERE ${reqConditions}` : ''
 
     // ORDER : tri
-    const arrOrder = []
-    for (let sort of params.order) {
-        tableName = (oneTable ? '' : sort.tableDef.tableName + '.')
-        arrOrder.push(`${tableName + sort.column} ${sort.direction}`)
-    }
-    const reqOrder = ` ORDER BY ${arrOrder.join(', ')}`
+    const reqOrder = ` ORDER BY ${[...buildSortConditions(params, oneTable)].join(', ')}`
 
     return {reqString: `SELECT ${reqColumns} FROM ${reqFROM}${reqWhere}${reqOrder}`, reqParams: arrParams}
 }
 
-const sqlSelectById = (params, tableDef) =>  {
-    const URIParam = params.URIParam
-    const reqColumns = params.columns || '*'
-    const reqTables = params.tables || tableDef.tableName
-    const arrParams = [URIParam.value]
-    const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
+const sqlSelectById = (params) =>  {
+    // SELECT : liste des colonnes
+    const oneTable = (params.tables.length === 1)
+    let reqColumns = '*'
+    if (params.columns) reqColumns = [...buildColumnsList(params, oneTable)].join(', ')
 
-    return {reqString: `SELECT ${reqColumns} FROM ${reqTables}${sqlWhereClause}`, reqParams: arrParams}
+    // FROM : tables et jointures
+    const reqFROM = buildFromConditions(params)
+
+    // WHERE : liste des conditions et tableau des valeurs
+    const URIParam = params.URIParam
+    const arrParams = [URIParam.value]
+    const tableName = (oneTable ? '' : params.URIParam.tableDef.tableName + '.')
+    const sqlWhereClause = ` WHERE ${tableName + URIParam.column} ${URIParam.op} ?`
+
+    return {reqString: `SELECT ${reqColumns} FROM ${reqFROM}${sqlWhereClause}`, reqParams: arrParams}
 }
 
 /*********************************************************

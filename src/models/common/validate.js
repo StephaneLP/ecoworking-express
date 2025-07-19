@@ -77,7 +77,7 @@ VÉRIFICATION DES DONNÉES : REQUÊTES CREATE, UPDATE & DELETE
 // Paramètre reçu via l'url (URI PARAM)
 const checkURIParam = (params) => {
     const URIParam = params.URIParam
-    const tableColumns = params.tableDef.tableColumns
+    const tableColumns = (params.tableDef ? params.tableDef.tableColumns : params.URIParam.tableDef.tableColumns)
 
     if (!URIParam.value) {
         return {success: false, msg: 'La chaîneURIParameter est vide'}

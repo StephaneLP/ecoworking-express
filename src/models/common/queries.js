@@ -42,10 +42,10 @@ const runQuerySelectById = async (params) => {
         // Validation du URI Parameter
         const check = checkURIParam(params)
         if (!check.success) return check
-
+console.log(check)
         // Construction de la requête SQL
         const sql = build.sqlSelectById(params)
-
+console.log(sql)
         // Éxecution de la requête
         conn = await db.getConnection()
         const result = await conn.query(sql.reqString, sql.reqParams)

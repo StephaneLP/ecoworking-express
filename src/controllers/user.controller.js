@@ -2,14 +2,15 @@ const jwt = require("jsonwebtoken")
 const crud = require('./common/crud')
 const {userTableDef} = require('../models/user.model')
 const {sendError} = require('../utils/result')
-const tools = require('../utils/tools')
+const {trimStringValues} = require('../utils/tools')
+const tools = require('./common/tools')
 
 /*********************************************************
 [INSCRIPTION] CREATE / POST / INSERT INTO
 *********************************************************/
 
 const createUser = async (req, res) => {
-    const body = tools.trimStringValues(req.body)
+    const body = trimStringValues(req.body)
 
     // Contrôle du format l'email
     if (!tools.checkEmailFormat(body.email)) {
@@ -52,7 +53,7 @@ const createUser = async (req, res) => {
 *********************************************************/
 
 const connectUser = async (req, res) => {
-    const body = tools.trimStringValues(req.body)
+    const body = trimStringValues(req.body)
     const email = body.email || null
     const password = body.password || null
 
