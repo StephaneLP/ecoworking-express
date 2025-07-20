@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken")
 const crud = require('./common/crud')
+const queries = require('../models/common/queries')
 const {userTableDef} = require('../models/user.model')
-const {sendError} = require('../utils/result')
+const {sendResult, sendError} = require('../utils/result')
 const {trimStringValues} = require('../utils/tools')
 const tools = require('./common/tools')
 
@@ -41,11 +42,12 @@ const createUser = async (req, res) => {
     body['icon_id'] = Number(process.env.SIGNUP_ICON_ID)
 
     const params = {
+        tableDef: userTableDef,
         bodyParams: body,
         functionName: 'createUser',
     }
 
-    crud.createRecord(params, userTableDef)(req, res)
+    crud.createRecord(params)(req, res)
 }
 
 /*********************************************************
@@ -64,10 +66,8 @@ const connectUser = async (req, res) => {
         }
 
         // Requête pour trouver l'utilisateur correspondant à l'email
-        const params = {
-            queryParams: [{column: 'email', op: '=', values: [email]}]
-        }
-        const user = await crud.getRecordByParams(params, userTableDef)
+        const sql = 'SELECT id, nickname, email, password FROM user WHERE email=?'
+        const user = await queries.runGetQuery(sql, [email])
 
         // Un utilisateur a-t'il été trouvé ? Si non message d'erreur
         if (user.length === 0) {

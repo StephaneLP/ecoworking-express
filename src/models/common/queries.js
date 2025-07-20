@@ -24,7 +24,7 @@ const runQuerySelect = async (params) => {
 
         // Éxecution de la requête
         conn = await db.getConnection()
-        const result = await conn.query(sql.reqString, sql.reqParams)
+        const result = await conn.query({nestTables: true, sql: sql.reqString}, sql.reqParams)
 
         return {success: true, result: result}
     }
@@ -42,13 +42,13 @@ const runQuerySelectById = async (params) => {
         // Validation du URI Parameter
         const check = checkURIParam(params)
         if (!check.success) return check
-console.log(check)
+
         // Construction de la requête SQL
         const sql = build.sqlSelectById(params)
-console.log(sql)
+
         // Éxecution de la requête
         conn = await db.getConnection()
-        const result = await conn.query(sql.reqString, sql.reqParams)
+        const result = await conn.query({nestTables: true, sql: sql.reqString}, sql.reqParams)
 
         return {success: true, result: result}
     }
@@ -156,18 +156,15 @@ const runQueryDeleteById = async (params) => {
 }
 
 /*********************************************************
-FONCTIONS SPÉCIFIQUES
+FONCTIONS INTERNES
 *********************************************************/
 
-const runGetRecordByParams = async (params, tableDef) => {
+const runGetQuery = async (sql, values) => {
     let conn
     try {
-        // Construction de la requête SQL
-        const sql = build.sqlSelect(params, tableDef)
-
         // Éxecution de la requête
         conn = await db.getConnection()
-        return await conn.query(sql.reqString, sql.reqParams)
+        return await conn.query(sql, values)        
     }
     catch(err) {
         throw new Error(`${err.message}`)
@@ -177,4 +174,4 @@ const runGetRecordByParams = async (params, tableDef) => {
     }
 }
 
-module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById, runQueryInsert, runQueryUpdateById, runGetRecordByParams}
+module.exports = {runQuerySelect, runQuerySelectById, runQueryDeleteById, runQueryInsert, runQueryUpdateById, runGetQuery}

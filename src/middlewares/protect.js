@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken")
-const crud = require('../controllers/common/crud')
-const {userTableDef} = require('../models/user.model')
+const queries = require('../models/common/queries')
 const {sendError} = require('../utils/result')
 
 const authenticate = (req, res, next) => {
@@ -33,12 +32,8 @@ const authorize = (roles) => {
             }
 
             // Requête pour trouver l'utilisateur correspondant à l'id userId
-            const params = {
-                columns: ['role.lib as role'],
-                tables: 'user INNER JOIN role ON user.role_id = role.id',
-                queryParams: [{column: 'user.id', op: '=', values: [userId]}]
-            }
-            const user = await crud.getRecordByParams(params, userTableDef)
+            const sql = 'SELECT role.lib as role FROM user INNER JOIN role ON user.role_id = role.id WHERE user.id=?'
+            const user = await queries.runGetQuery(sql, [userId])
             const userRole = user[0].role
 
             if (!roles.includes(userRole)) {

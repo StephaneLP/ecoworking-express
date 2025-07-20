@@ -6,30 +6,28 @@ SELECT
 
 const sqlSelect = (params) =>  {
     // SELECT : liste des colonnes
-    const oneTable = (params.tables.length === 1)
     let reqColumns = '*'
-    if (params.columns) reqColumns = [...buildColumnsList(params, oneTable)].join(', ')
+    if (params.columns) reqColumns = [...buildColumnsList(params)].join(', ')
 
     // FROM : tables et jointures
     const reqFROM = buildFromConditions(params)
 
     // WHERE : liste des conditions et tableau des valeurs
-    const conditions = buildWhereConditions(params, oneTable)
+    const conditions = buildWhereConditions(params)
     const arrParams = [...conditions.params]
     const reqConditions = [...conditions.conditions].join(' AND ')
     const reqWhere = reqConditions ? ` WHERE ${reqConditions}` : ''
 
     // ORDER : tri
-    const reqOrder = ` ORDER BY ${[...buildSortConditions(params, oneTable)].join(', ')}`
+    const reqOrder = ` ORDER BY ${[...buildSortConditions(params)].join(', ')}`
 
     return {reqString: `SELECT ${reqColumns} FROM ${reqFROM}${reqWhere}${reqOrder}`, reqParams: arrParams}
 }
 
 const sqlSelectById = (params) =>  {
     // SELECT : liste des colonnes
-    const oneTable = (params.tables.length === 1)
     let reqColumns = '*'
-    if (params.columns) reqColumns = [...buildColumnsList(params, oneTable)].join(', ')
+    if (params.columns) reqColumns = [...buildColumnsList(params)].join(', ')
 
     // FROM : tables et jointures
     const reqFROM = buildFromConditions(params)
@@ -37,8 +35,7 @@ const sqlSelectById = (params) =>  {
     // WHERE : liste des conditions et tableau des valeurs
     const URIParam = params.URIParam
     const arrParams = [URIParam.value]
-    const tableName = (oneTable ? '' : params.URIParam.tableDef.tableName + '.')
-    const sqlWhereClause = ` WHERE ${tableName + URIParam.column} ${URIParam.op} ?`
+    const sqlWhereClause = ` WHERE ${params.URIParam.tableDef.tableName}.${URIParam.column} ${URIParam.op} ?`
 
     return {reqString: `SELECT ${reqColumns} FROM ${reqFROM}${sqlWhereClause}`, reqParams: arrParams}
 }

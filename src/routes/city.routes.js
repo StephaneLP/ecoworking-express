@@ -8,8 +8,8 @@ router.route('/')
     .post(cityController.createCity)
 
 router.route('/:id')    
-    // .get(authenticate, authorize(['superadmin','admin']), cityController.readCityById)
-    .get(cityController.readCityById)
+    .get(authenticate, authorize(['superadmin','admin']), cityController.readCityById)
+    // .get(cityController.readCityById)
     .delete(cityController.deleteCityById)
     .put(cityController.updateCityById)
 

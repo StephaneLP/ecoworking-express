@@ -3,19 +3,13 @@ CONSTRUCTION REQUÊTE SELECT
 *********************************************************/
 
 // SELECT : colonnes
-const buildColumnsList = (params, oneTable) => {
-    const dateFormat = params.dateFormat || ''
-    let colName, tableName, isDate, inDateColumns, inTableColumns
+const buildColumnsList = (params) => {
+    let colName
     const arrColumns = []
 
     for (let objColumns of params.columns) {
-        tableName = (oneTable ? '' : objColumns.tableDef.tableName + '.')
         for (let column of objColumns.columns) {
-            inDateColumns = Object.values(objColumns.tableDef.dateColumns).includes(column)
-            inTableColumns = Boolean(objColumns.tableDef.tableColumns[column])
-            isDate = Boolean(inDateColumns || (objColumns.tableDef.tableColumns[column].type === 'date'))
-            colName = tableName + column
-            colName = (isDate ? `DATE_FORMAT(${colName}, '${dateFormat}') AS ${colName}` : colName)
+            colName = `${objColumns.tableDef.tableName}.${column}`
             arrColumns.push(colName)
         }
     }
@@ -34,9 +28,9 @@ const buildFromConditions = (params) => {
 }
 
 // Clause WHERE
-const buildWhereConditions = (params, oneTable)  => {
+const buildWhereConditions = (params)  => {
     const arrParams = [], arrPattern = [], arrConditions = []
-    let value, pattern,tableName
+    let value, pattern
 
     for (let param of params.queryParams) {
         switch (param.op.toUpperCase()) {
@@ -61,20 +55,17 @@ const buildWhereConditions = (params, oneTable)  => {
                 pattern = '?'
         }
     
-        tableName = (oneTable ? '' : param.tableDef.tableName + '.')
-        arrConditions.push(`${tableName + param.column} ${param.op} ${pattern}`)
+        arrConditions.push(`${param.tableDef.tableName}.${param.column} ${param.op} ${pattern}`)
     }
 
     return {conditions: arrConditions, params: arrParams}
 }
 
 // Clause ORDER
-const buildSortConditions = (params, oneTable) => {
-    let tableName
+const buildSortConditions = (params) => {
     const arrOrder = []
     for (let sort of params.order) {
-        tableName = (oneTable ? '' : sort.tableDef.tableName + '.')
-        arrOrder.push(`${tableName + sort.column} ${sort.direction}`)
+        arrOrder.push(`${sort.tableDef.tableName}.${sort.column} ${sort.direction}`)
     }
 
     return arrOrder

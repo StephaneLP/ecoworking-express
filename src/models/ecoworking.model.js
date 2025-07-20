@@ -63,3 +63,5 @@ const ecoworkingTableDef = {
         updateDate: 'updated_at'
     }
 }
+
+module.exports = {ecoworkingTableDef}
