@@ -71,5 +71,4 @@ const buildSortConditions = (params) => {
     return arrOrder
 }
 
-
 module.exports = {buildColumnsList, buildFromConditions, buildWhereConditions, buildSortConditions}

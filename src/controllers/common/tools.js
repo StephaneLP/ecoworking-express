@@ -45,4 +45,29 @@ const comparePasswords = async (password, dbPassword) => {
     }
 }
 
-module.exports = {checkEmailFormat, checkNickNameFormat, checkPasswordFormat, hashPassword, comparePasswords}
+
+/*********************************************************
+MISE EN FORME DE LA RÉPONSE DE LA REQUÊTE
+*********************************************************/
+
+const formatSelectResponse = (params, dbRes) => {
+    let mainTableName, columns
+    const arrTables = params.tables.map(e => typeof e === 'string' ? e : e[0])
+    const arrResult = []
+
+    mainTableName = arrTables.shift()
+
+    // Liste des lignes distinctes correspondant à la atble principale
+    for (let line of dbRes) {          
+        columns = {...line[mainTableName]}
+        arrResult.push(columns)
+    }
+    
+    const uniqueColValues = [...new Set(arrResult)]
+
+
+    console.log(uniqueColValues)
+    return dbRes
+}
+
+module.exports = {checkEmailFormat, checkNickNameFormat, checkPasswordFormat, hashPassword, comparePasswords, formatSelectResponse}

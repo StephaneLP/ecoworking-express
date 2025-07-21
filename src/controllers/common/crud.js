@@ -1,5 +1,6 @@
 const {sendResult, sendError} = require('../../utils/result')
 const queries = require('../../models/common/queries')
+const {formatSelectResponse} = require('./tools')
 
 /*********************************************************
 READ
@@ -8,13 +9,14 @@ READ
 const readRecords = (params) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQuerySelect(params)
+            const dbRes = await queries.runQuerySelect(params)
 
-            if (!dbReq.success) {
-                return sendError(res, 400, `${params.functionName}/${dbReq.functionName}`, 'Erreur Requête', dbReq.msg)
+            if (!dbRes.success) {
+                return sendError(res, 400, `${params.functionName}/${dbRes.functionName}`, 'Erreur Requête', dbRes.msg)
             }
 
-            sendResult(res, 200, params.functionName, 'Requête exécutée avec succès', dbReq.result.length, dbReq.result)
+            const formatDbRes = Number(process.env.DB_RES_FORMAT_NATIVE) ? dbRes.result : formatSelectResponse(params, dbRes.result)
+            sendResult(res, 200, params.functionName, 'Requête exécutée avec succès', dbRes.result.length, formatDbRes)
         }
         catch(err) {
             sendError(res, 500, params.functionName, 'Erreur Serveur', err.message)
@@ -25,17 +27,17 @@ const readRecords = (params) => {
 const readRecordById = (params) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQuerySelectById(params)
+            const dbRes = await queries.runQuerySelectById(params)
 
-            if (!dbReq.success) {
-                return sendError(res, 400, `${params.functionName}/${dbReq.functionName}`, 'Erreur Requête', dbReq.msg)               
+            if (!dbRes.success) {
+                return sendError(res, 400, `${params.functionName}/${dbRes.functionName}`, 'Erreur Requête', dbRes.msg)               
             }
 
-            if (dbReq.result.length === 0) {
+            if (dbRes.result.length === 0) {
                 return sendError(res, 404, params.functionName, 'Aucune ligne n\'a été trouvée', 'La requête a retourné un tableau vide')
             }
 
-            sendResult(res, 200, params.functionName, 'Requête exécutée avec succès', dbReq.result.length, dbReq.result)
+            sendResult(res, 200, params.functionName, 'Requête exécutée avec succès', dbRes.result.length, dbRes.result)
         }
         catch(err) {
             sendError(res, 500, params.functionName, 'Erreur Serveur', err.message)
@@ -50,13 +52,13 @@ CREATE
 const createRecord = (params) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQueryInsert(params)
+            const dbRes = await queries.runQueryInsert(params)
 
-            if (!dbReq.success) {
-                return sendError(res, 400, `${params.functionName}/${dbReq.functionName}`, 'Erreur Requête', dbReq.msg)            
+            if (!dbRes.success) {
+                return sendError(res, 400, `${params.functionName}/${dbRes.functionName}`, 'Erreur Requête', dbRes.msg)            
             }
 
-            sendResult(res, 200, params.functionName, `${dbReq.result.affectedRows} ligne(s) créée(s)`, dbReq.result.affectedRows, [])
+            sendResult(res, 200, params.functionName, `${dbRes.result.affectedRows} ligne(s) créée(s)`, dbRes.result.affectedRows, [])
         }
         catch(err) {
             sendError(res, 500, params.functionName, 'Erreur Serveur', err.message)
@@ -71,17 +73,17 @@ UPDATE
 const updateRecordById = (params) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQueryUpdateById(params)
+            const dbRes = await queries.runQueryUpdateById(params)
 
-            if (!dbReq.success) {
-                return sendError(res, 400, `${params.functionName}/${dbReq.functionName}`, 'Erreur Requête', dbReq.msg)              
+            if (!dbRes.success) {
+                return sendError(res, 400, `${params.functionName}/${dbRes.functionName}`, 'Erreur Requête', dbRes.msg)              
             }
 
-            if (dbReq.result.affectedRows === 0) {
+            if (dbRes.result.affectedRows === 0) {
                 return sendError(res, 404, params.functionName, 'Aucune ligne ne correspond à la sélection', `id: ${params.URIParam.value}`)              
             }
 
-            sendResult(res, 200, params.functionName, `${dbReq.result.affectedRows} ligne(s) modifiée(s)`, dbReq.result.affectedRows, [])
+            sendResult(res, 200, params.functionName, `${dbRes.result.affectedRows} ligne(s) modifiée(s)`, dbRes.result.affectedRows, [])
         }
         catch(err) {
             sendError(res, 500, params.functionName, 'Erreur Serveur', err.message)
@@ -96,17 +98,17 @@ DELETE
 const deleteRecordById = (params) => {
     return async (req, res) => {
         try {
-            const dbReq = await queries.runQueryDeleteById(params)
+            const dbRes = await queries.runQueryDeleteById(params)
 
-            if (!dbReq.success) {
-                return sendError(res, 400, `${params.functionName}/${dbReq.functionName}`, 'Erreur Requête', dbReq.msg)
+            if (!dbRes.success) {
+                return sendError(res, 400, `${params.functionName}/${dbRes.functionName}`, 'Erreur Requête', dbRes.msg)
             }
 
-            if (dbReq.result.affectedRows === 0) {
+            if (dbRes.result.affectedRows === 0) {
                 return sendError(res, 404, params.functionName, 'La ligne n\'a pas pu être supprimée', `id: ${params.URIParam.value}`)
             }
 
-            sendResult(res, 200, params.functionName, `${dbReq.result.affectedRows} ligne(s) supprimée(s)`, dbReq.result.affectedRows, [])
+            sendResult(res, 200, params.functionName, `${dbRes.result.affectedRows} ligne(s) supprimée(s)`, dbRes.result.affectedRows, [])
         }
         catch(err) {
             sendError(res, 500, params.functionName, 'Erreur Serveur', err.message)            

@@ -11,7 +11,8 @@ const readEcoworking = (req, res) => {
     const queryParams = trimStringValues(req.query)
 
     // TABLES & COLONNES (SELECT...FROM...)
-    const arrTables = ['ecoworking', ['city', 'ecoworking.city_id = city.id']]
+    const arrTables = ['city', ['ecoworking', 'ecoworking.city_id = city.id']]
+    // const arrTables = ['ecoworking', ['city', 'ecoworking.city_id = city.id']]
     const arrColumns = [
         {
             tableDef: ecoworkingTableDef,
@@ -19,7 +20,7 @@ const readEcoworking = (req, res) => {
         },
         {
             tableDef: cityTableDef,
-            columns: ['name']
+            columns: ['name', 'is_active']
         }
     ]
 
@@ -28,11 +29,13 @@ const readEcoworking = (req, res) => {
     if(queryParams.id) arrQueryParams.push({tableDef: ecoworkingTableDef, column: 'id', op: 'IN', values: queryParams.id.split(',')})
     if(queryParams.name) arrQueryParams.push({tableDef: ecoworkingTableDef, column: 'name', op: 'LIKE', values: [queryParams.name], pattern: '%?%'})
     if(queryParams.is_active) arrQueryParams.push({tableDef: ecoworkingTableDef, column: 'is_active', op: '=', values: [queryParams.is_active]})
+    if(queryParams.city) arrQueryParams.push({tableDef: cityTableDef, column: 'name', op: 'LIKE', values: [queryParams.city], pattern: '%?%'})
 
     // TRI (clause ORDER BY)
     const col = queryParams.sort || 'name'
     const dir = queryParams.dir || 'ASC'
-    const arrOrder = [{tableDef: ecoworkingTableDef, column: col, direction: dir}]
+    const arrOrder = [{tableDef: cityTableDef, column: col, direction: dir}]
+    // const arrOrder = [{tableDef: ecoworkingTableDef, column: col, direction: dir}]
 
     const params = {
         tables: arrTables,

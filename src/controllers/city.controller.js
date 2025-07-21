@@ -32,7 +32,6 @@ const readCities = (req, res) => {
         columns: arrColumns,
         queryParams: arrQueryParams,
         order: arrOrder,
-        dateFormat: '%Y-%m-%d %H:%i:%s',
         functionName: 'readCities',
     }
 
@@ -51,7 +50,6 @@ const readCityById = (req, res) => {
         tables: arrTables,
         columns: arrColumns,
         URIParam: {tableDef: cityTableDef, column: 'id', op: '=', value: req.params.id.trim()},
-        dateFormat: '%Y-%m-%d %H:%i:%s',
         functionName: 'readCityById',
     }
 
