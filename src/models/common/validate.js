@@ -41,7 +41,6 @@ const checkQueryParams = (params) => {
                             break
                     }
                 }
-                console.log(param.values)
             }
         }
 
@@ -111,7 +110,7 @@ const checkURIParam = (params) => {
 // Paramètres reçus via le corps de la requête HTTP (BODY PARAMS)
 const checkBodyParams = (params) => {
     const bodyParams = params.bodyParams
-    const model = params.model
+    const model = params.table
 
     try {
         let value, constraints

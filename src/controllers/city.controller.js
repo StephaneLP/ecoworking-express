@@ -14,7 +14,7 @@ const readCities = (req, res) => {
     const tables = {
         mainTable: {
             model: city,
-            columns: ['name', 'is_active', 'created_at', 'updated_at']
+            columns: ['id', 'name', 'is_active', 'created_at', 'updated_at']
         },
         joinTables : []
     }
@@ -63,7 +63,7 @@ const readCityById = (req, res) => {
     const tables = {
         mainTable: {
             model: city,
-            columns: ['name', 'is_active', 'created_at', 'updated_at']
+            columns: ['*']
         },
         joinTables : []
     }

@@ -44,7 +44,7 @@ INSERT INTO
 *********************************************************/
 
 const sqlInsert = (params) => {
-    const model = params.model
+    const model = params.table
     const arrColumns = [], arrParams = [], arrPattern = []
     let constraints, value
 
@@ -80,7 +80,7 @@ UPDATE
 const sqlUpdateById = (params) => {
     const arrColumns = [], arrParams = []
     const URIParam = params.URIParam
-    const model = params.model
+    const model = params.table
 
     // Colonnes mises à jour
     for(let column in params.bodyParams) {
@@ -111,7 +111,7 @@ const sqlDeleteById = (params) =>  {
     const arrParams = [URIParam.value]
     const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
 
-    return {reqString: `DELETE FROM ${params.model.tableName}${sqlWhereClause}`, reqParams: arrParams}
+    return {reqString: `DELETE FROM ${params.table.tableName}${sqlWhereClause}`, reqParams: arrParams}
 }
 
 module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert, sqlUpdateById}
