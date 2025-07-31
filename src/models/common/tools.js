@@ -1,17 +1,28 @@
+const {op, dbRelations} = require('../../config/db.params')
+
 /*********************************************************
 CONSTRUCTION REQUÊTE SELECT
 *********************************************************/
 
 // SELECT : colonnes
 const buildColumnsList = (params) => {
-    let colName
+    const mainTable = params.tables.mainTable
+    const joinTables = params.tables.joinTables
     const arrColumns = []
+    let mainTableName, joinTableName
 
-    for (let objColumns of params.columns) {
-        for (let column of objColumns.columns) {
-            colName = `${objColumns.tableDef.tableName}.${column}`
-            arrColumns.push(colName)
-        }
+    // Table principale
+    mainTableName = mainTable.model.tableName
+    for (let column of mainTable.columns) {
+        arrColumns.push(`${mainTableName}.${column}`)
+    }
+
+    // Tables jointes (facultatives)
+    for (let table of joinTables) {
+        joinTableName = table.model.tableName
+        for (let column of table.columns) {
+            arrColumns.push(`${joinTableName}.${column}`)
+        }        
     }
 
     return arrColumns
@@ -19,9 +30,16 @@ const buildColumnsList = (params) => {
 
 // clause FROM
 const buildFromConditions = (params) => {
-    let tableList = params.tables[0]
-    for (let key in params.tables) {
-        if (key > 0) tableList += ` INNER JOIN ${params.tables[key][0]} ON ${params.tables[key][1]}`
+    const mainTable = params.tables.mainTable
+    const joinTables = params.tables.joinTables
+    const mainTableName = mainTable.model.tableName
+    let tableList, condition, joinTableName
+
+    tableList = mainTableName
+    for (let joinTable of joinTables) {
+        joinTableName = joinTable.model.tableName
+        condition = dbRelations[mainTableName][joinTableName][1]
+        tableList += ` INNER JOIN ${joinTableName} ON ${condition}`
     }
 
     return tableList
@@ -33,8 +51,8 @@ const buildWhereConditions = (params)  => {
     let value, pattern
 
     for (let param of params.queryParams) {
-        switch (param.op.toUpperCase()) {
-            case 'LIKE':
+        switch (param.op) {
+            case op.like:
                 value = param.values[0]
                 value = value.replace('%', '\\%')       
                 value = value.replace('_', '\\_')
@@ -42,7 +60,7 @@ const buildWhereConditions = (params)  => {
                 arrParams.push(value)
                 pattern = '?'
                 break
-            case 'IN':
+            case op.in:
                 param.values.forEach(e => {
                     arrPattern.push('?')
                     arrParams.push(e)
@@ -55,7 +73,7 @@ const buildWhereConditions = (params)  => {
                 pattern = '?'
         }
     
-        arrConditions.push(`${param.tableDef.tableName}.${param.column} ${param.op} ${pattern}`)
+        arrConditions.push(`${param.model.tableName}.${param.column} ${param.op} ${pattern}`)
     }
 
     return {conditions: arrConditions, params: arrParams}
@@ -64,8 +82,8 @@ const buildWhereConditions = (params)  => {
 // Clause ORDER
 const buildSortConditions = (params) => {
     const arrOrder = []
-    for (let sort of params.order) {
-        arrOrder.push(`${sort.tableDef.tableName}.${sort.column} ${sort.direction}`)
+    for (let sort of params.orderParams) {
+        arrOrder.push(`${sort.model.tableName}.${sort.column} ${sort.direction}`)
     }
 
     return arrOrder

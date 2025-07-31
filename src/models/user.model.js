@@ -1,4 +1,4 @@
-const userTableDef = {
+const user = {
     tableName: 'user',
     tableColumns: {
         id: {
@@ -52,4 +52,4 @@ const userTableDef = {
     }
 }
 
-module.exports = {userTableDef}
+module.exports = {user}

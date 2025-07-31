@@ -6,8 +6,7 @@ SELECT
 
 const sqlSelect = (params) =>  {
     // SELECT : liste des colonnes
-    let reqColumns = '*'
-    if (params.columns) reqColumns = [...buildColumnsList(params)].join(', ')
+    const reqColumns = [...buildColumnsList(params)].join(', ')
 
     // FROM : tables et jointures
     const reqFROM = buildFromConditions(params)
@@ -35,7 +34,7 @@ const sqlSelectById = (params) =>  {
     // WHERE : liste des conditions et tableau des valeurs
     const URIParam = params.URIParam
     const arrParams = [URIParam.value]
-    const sqlWhereClause = ` WHERE ${params.URIParam.tableDef.tableName}.${URIParam.column} ${URIParam.op} ?`
+    const sqlWhereClause = ` WHERE ${params.URIParam.model.tableName}.${URIParam.column} ${URIParam.op} ?`
 
     return {reqString: `SELECT ${reqColumns} FROM ${reqFROM}${sqlWhereClause}`, reqParams: arrParams}
 }
@@ -45,12 +44,12 @@ INSERT INTO
 *********************************************************/
 
 const sqlInsert = (params) => {
-    const tableDef = params.tableDef
+    const model = params.model
     const arrColumns = [], arrParams = [], arrPattern = []
     let constraints, value
 
-    for(let column in tableDef.tableColumns) {
-        constraints = tableDef.tableColumns[column]
+    for(let column in model.tableColumns) {
+        constraints = model.tableColumns[column]
         value = params.bodyParams[column] === undefined ? null : params.bodyParams[column]
 
         if (constraints.autoIncrement) continue
@@ -64,14 +63,14 @@ const sqlInsert = (params) => {
     }
 
     // Date de création
-    const dateColumn = tableDef.dateColumns.createDate
+    const dateColumn = model.dateColumns.createDate
     if (dateColumn) {
         arrColumns.push(dateColumn)
         arrParams.push(new Date())
         arrPattern.push('?')
     }
 
-    return {success: true, reqString: `INSERT INTO ${tableDef.tableName} (${arrColumns.join()}) VALUES (${arrPattern.join()})`, reqParams: arrParams}
+    return {success: true, reqString: `INSERT INTO ${model.tableName} (${arrColumns.join()}) VALUES (${arrPattern.join()})`, reqParams: arrParams}
 }
 
 /*********************************************************
@@ -81,7 +80,7 @@ UPDATE
 const sqlUpdateById = (params) => {
     const arrColumns = [], arrParams = []
     const URIParam = params.URIParam
-    const tableDef = params.tableDef
+    const model = params.model
 
     // Colonnes mises à jour
     for(let column in params.bodyParams) {
@@ -90,7 +89,7 @@ const sqlUpdateById = (params) => {
     }
 
     // Date de modification
-    const dateColumn = tableDef.dateColumns.updateDate
+    const dateColumn = model.dateColumns.updateDate
     if (dateColumn) {
         arrColumns.push(`${dateColumn}=?`)
         arrParams.push(new Date())
@@ -100,7 +99,7 @@ const sqlUpdateById = (params) => {
     const condition = `${URIParam.column} ${URIParam.op} ?`
     arrParams.push(URIParam.value)
     
-    return {success: true, reqString: `UPDATE ${tableDef.tableName} SET ${arrColumns.join()} WHERE ${condition}`, reqParams: arrParams}
+    return {success: true, reqString: `UPDATE ${model.tableName} SET ${arrColumns.join()} WHERE ${condition}`, reqParams: arrParams}
 }
 
 /*********************************************************
@@ -112,7 +111,7 @@ const sqlDeleteById = (params) =>  {
     const arrParams = [URIParam.value]
     const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
 
-    return {reqString: `DELETE FROM ${params.tableDef.tableName}${sqlWhereClause}`, reqParams: arrParams}
+    return {reqString: `DELETE FROM ${params.model.tableName}${sqlWhereClause}`, reqParams: arrParams}
 }
 
 module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert, sqlUpdateById}

@@ -13,11 +13,12 @@ const checkQueryParams = (params) => {
             let constraints, value
 
             for (let param of queryParams) {
-                constraints = param.tableDef.tableColumns[param.column]
+                constraints = param.model.tableColumns[param.column]
                 if(!constraints) {
                     return {success: false, functionName: 'validate.checkQueryParams', msg: `Colonne '${param.column}' absente de la BDD`}
                 }
-                for (let i = 0; i < param.values.length; i++) {
+                console.log(param.values)
+                for (let i in param.values) {
                     value = param.values[i]
 
                     switch (constraints.type) {
@@ -40,6 +41,7 @@ const checkQueryParams = (params) => {
                             break
                     }
                 }
+                console.log(param.values)
             }
         }
 
@@ -52,12 +54,12 @@ const checkQueryParams = (params) => {
 
 const checkOrderParams = (params) => {
     try {
-        let tableDef
+        let model
 
-        for (let sort of params.order) {
-            tableDef = sort.tableDef
-            if (!tableDef.tableColumns[sort.column]) {
-                return {success: false, functionName: 'validate.checkOrderParam', msg: `Colonne de tri '${sort.column}' absente de la BDD`}
+        for (let sort of params.orderParams) {
+            model = sort.model
+            if (!model.tableColumns[sort.column]) {
+                return {success: false, functionName: 'validate.checkOrderParams', msg: `Colonne de tri '${sort.column}' absente de la BDD`}
             }
             sort.direction = (sort.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')            
         }
@@ -65,7 +67,7 @@ const checkOrderParams = (params) => {
         return {success: true}
     }
     catch(err) {
-        throw new Error(`validate.checkOrderParam - ${err.name} (${err.message})`)
+        throw new Error(`validate.checkOrderParams - ${err.name} (${err.message})`)
     }
 }
 
@@ -77,13 +79,12 @@ VÉRIFICATION DES DONNÉES : REQUÊTES CREATE, UPDATE & DELETE
 // Paramètre reçu via l'url (URI PARAM)
 const checkURIParam = (params) => {
     const URIParam = params.URIParam
-    const tableColumns = (params.tableDef ? params.tableDef.tableColumns : params.URIParam.tableDef.tableColumns)
 
     if (!URIParam.value) {
         return {success: false, msg: 'La chaîneURIParameter est vide'}
     }
     try {
-        const constraint = tableColumns[URIParam.column]
+        const constraint = URIParam.model.tableColumns[URIParam.column]
         const dataType = constraint.type
 
         switch (dataType) {
@@ -110,13 +111,13 @@ const checkURIParam = (params) => {
 // Paramètres reçus via le corps de la requête HTTP (BODY PARAMS)
 const checkBodyParams = (params) => {
     const bodyParams = params.bodyParams
-    const tableDef = params.tableDef
+    const model = params.model
 
     try {
         let value, constraints
 
         for (let column in bodyParams) {
-            constraints = tableDef.tableColumns[column]
+            constraints = model.tableColumns[column]
             if(!constraints) {
                 return {success: false, functionName: 'validate.checkBodyParams', msg: `Colonne '${column}' absente de la BDD`}
             }

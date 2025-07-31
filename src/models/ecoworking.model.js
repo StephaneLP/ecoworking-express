@@ -1,4 +1,4 @@
-const ecoworkingTableDef = {
+const ecoworking = {
     tableName: 'ecoworking',
     tableColumns: {
         id: {
@@ -64,4 +64,4 @@ const ecoworkingTableDef = {
     }
 }
 
-module.exports = {ecoworkingTableDef}
+module.exports = {ecoworking}

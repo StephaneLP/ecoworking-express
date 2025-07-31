@@ -1,4 +1,4 @@
-const cityTableDef = {
+const city = {
     tableName: 'city',
     tableColumns: {
         id: {
@@ -24,4 +24,4 @@ const cityTableDef = {
     }
 }
 
-module.exports = {cityTableDef}
+module.exports = {city}

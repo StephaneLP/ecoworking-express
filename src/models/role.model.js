@@ -1,4 +1,4 @@
-const roleTableDef = {
+const role = {
     tableName: 'role',
     tableColumns: {
         id: {
@@ -15,4 +15,4 @@ const roleTableDef = {
     }
 }
 
-module.exports = {roleTableDef}
+module.exports = {role}

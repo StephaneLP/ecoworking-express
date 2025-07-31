@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
 const crud = require('./common/crud')
 const queries = require('../models/common/queries')
-const {userTableDef} = require('../models/user.model')
+const {user} = require('../models/user.model')
 const {sendResult, sendError} = require('../utils/result')
 const {trimStringValues} = require('../utils/tools')
 const tools = require('./common/tools')
@@ -35,14 +35,14 @@ const createUser = async (req, res) => {
     }
     body.password = hash.password
 
-    // Colonnes avec des valeurs par défaut
+    // Ajout des colonnes absentes du body (valeurs par défaut)
     body['is_verified'] = 0
     body['icon_color'] = `#${process.env.SIGNUP_ICON_COLOR}`
     body['role_id'] = Number(process.env.SIGNUP_ROLE_ID)
     body['icon_id'] = Number(process.env.SIGNUP_ICON_ID)
 
     const params = {
-        tableDef: userTableDef,
+        table: user,
         bodyParams: body,
         functionName: 'createUser',
     }

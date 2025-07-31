@@ -1,68 +1,90 @@
-const {ecoworkingTableDef} = require('../models/ecoworking.model')
-const {cityTableDef} = require('../models/city.model')
-const {trimStringValues} = require('../utils/tools')
+const {ecoworking} = require('../models/ecoworking.model')
+const {city} = require('../models/city.model')
 const crud = require('./common/crud')
+const {trimStringValues} = require('../utils/tools')
+const {op} = require('../config/db.params')
 
 /*********************************************************
 READ / GET / SELECT
 *********************************************************/
 
 const readEcoworking = (req, res) => {
-    const queryParams = trimStringValues(req.query)
+    const query = trimStringValues(req.query)
 
     // TABLES & COLONNES (SELECT...FROM...)
-    const arrTables = ['city', ['ecoworking', 'ecoworking.city_id = city.id']]
-    // const arrTables = ['ecoworking', ['city', 'ecoworking.city_id = city.id']]
-    const arrColumns = [
-        {
-            tableDef: ecoworkingTableDef,
+    const tables = {
+        mainTable: {
+            model: ecoworking,
             columns: ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']
         },
-        {
-            tableDef: cityTableDef,
+        joinTables : [{
+            model: city,
             columns: ['name', 'is_active']
-        }
-    ]
+        }]
+    }
 
     // FILTRE (clause WHERE)
-    const arrQueryParams = []
-    if(queryParams.id) arrQueryParams.push({tableDef: ecoworkingTableDef, column: 'id', op: 'IN', values: queryParams.id.split(',')})
-    if(queryParams.name) arrQueryParams.push({tableDef: ecoworkingTableDef, column: 'name', op: 'LIKE', values: [queryParams.name], pattern: '%?%'})
-    if(queryParams.is_active) arrQueryParams.push({tableDef: ecoworkingTableDef, column: 'is_active', op: '=', values: [queryParams.is_active]})
-    if(queryParams.city) arrQueryParams.push({tableDef: cityTableDef, column: 'name', op: 'LIKE', values: [queryParams.city], pattern: '%?%'})
+    const queryParams = []
+    
+    if(query.id) queryParams.push({
+        model: ecoworking, 
+        column: 'id', 
+        op: op.in, 
+        values: query.id.split(',')})
+
+    if(query.name) queryParams.push({
+        model: ecoworking, 
+        column: 'name', 
+        op: op.like, 
+        values: [query.name], pattern: '%?%'})
+
+    if(query.is_active) queryParams.push({
+        model: ecoworking, 
+        column: 'is_active', 
+        op: op.equal, 
+        values: [query.is_active]})
+
+    if(query.city) queryParams.push({
+        model: city, 
+        column: 'name', 
+        op: op.like, 
+        values: [query.city], pattern: '%?%'})
 
     // TRI (clause ORDER BY)
-    const col = queryParams.sort || 'name'
-    const dir = queryParams.dir || 'ASC'
-    const arrOrder = [{tableDef: cityTableDef, column: col, direction: dir}]
-    // const arrOrder = [{tableDef: ecoworkingTableDef, column: col, direction: dir}]
+    const orderParams = [
+        {model: ecoworking, column: query.sort || 'name', direction: query.dir || 'ASC'}
+    ]
 
     const params = {
-        tables: arrTables,
-        columns: arrColumns,
-        queryParams: arrQueryParams,
-        order: arrOrder,
-        dateFormat: '%Y-%m-%d %H:%i:%s',
-        functionName: 'readCities',
+        tables: tables,
+        queryParams: queryParams,
+        orderParams: orderParams,
+        functionName: 'readEcoworking',
     }
 
     crud.readRecords(params)(req, res)
 }
 
 const readEcoworkingById = (req, res) => {
+    // Paramètre transmis par l'URL (URI Param)
+    const URIParam = {model: ecoworking, column: 'id', op: op.equal, value: req.params.id.trim()}
+
     // TABLES & COLONNES (SELECT...FROM...)
-    const arrTables = ['ecoworking']
-    const arrColumns = [{
-        tableDef: ecoworkingTableDef,
-        columns: ['name', 'is_active', 'created_at', 'updated_at']
-    }]
+    const tables = {
+        mainTable: {
+            model: ecoworking,
+            columns: ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']
+        },
+        joinTables : [{
+            model: city,
+            columns: ['name', 'is_active']
+        }]
+    }
 
     const params = {
-        tables: arrTables,
-        columns: arrColumns,
-        URIParam: {tableDef: ecoworkingTableDef, column: 'id', op: '=', value: req.params.id.trim()},
-        dateFormat: '%Y-%m-%d %H:%i:%s',
-        functionName: 'readecoworkingById',
+        tables: tables,
+        URIParam: URIParam,
+        functionName: 'readEcoworkingById',
     }
 
     crud.readRecordById(params)(req, res)
@@ -73,10 +95,11 @@ CREATE / POST / INSERT INTO
 *********************************************************/
 
 const createEcoworking = (req, res) => {
+    // Données transmises dans le corps de la requête
     const body = trimStringValues(req.body)
 
     const params = {
-        tableDef: ecoworkingTableDef,
+        table: ecoworking,
         bodyParams: body,
         functionName: 'createEcoworking',
     }
@@ -89,11 +112,15 @@ UPDATE / PUT / INSERT INTO
 *********************************************************/
 
 const updateEcoworkingById = (req, res) => {
-    const body = trimStringValues(req.body)
+    // Paramètre transmis par l'URL (URI Param)
+    const URIParam = {model: ecoworking, column: 'id', op: op.equal, value: req.params.id.trim()}
 
+    // Données transmises dans le corps de la requête
+    const body = trimStringValues(req.body)
+    
     const params = {
-        tableDef: ecoworkingTableDef,
-        URIParam: {column: 'id', op: '=', value: req.params.id.trim()},
+        table: ecoworking,
+        URIParam: URIParam,
         bodyParams: body,
         functionName: 'updateEcoworkingById',
     }
@@ -106,9 +133,12 @@ DELETE / DELETE / DELETE
 *********************************************************/
 
 const deleteEcoworkingById = (req, res) => {
+    // Paramètre transmis par l'URL (URI Param)
+    const URIParam = {model: ecoworking, column: 'id', op: op.equal, value: req.params.id.trim()}
+
     const params = {
-        tableDef: ecoworkingTableDef,
-        URIParam: {column: 'id', op: '=', value: req.params.id.trim()},
+        table: ecoworking,
+        URIParam: URIParam,
         functionName: 'deleteEcoworkingById',
     }
 

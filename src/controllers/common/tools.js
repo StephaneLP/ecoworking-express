@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const {isParentTable} = require('../../config/db.params')
 
 /*********************************************************
 INSCRIPTION, AUTHENTIFICATION, AUTHORISATION
@@ -51,23 +52,25 @@ MISE EN FORME DE LA RÉPONSE DE LA REQUÊTE
 *********************************************************/
 
 const formatSelectResponse = (params, dbRes) => {
-    let mainTableName, columns
-    const arrTables = params.tables.map(e => typeof e === 'string' ? e : e[0])
+    const mainTable = params.tables.mainTable
+    const joinTables = params.tables.joinTables
+    const mainTableName = mainTable.model.tableName
+    let joinTableName, columns
     const arrResult = []
 
-    mainTableName = arrTables.shift()
-
-    // Liste des lignes distinctes correspondant à la atble principale
     for (let line of dbRes) {          
         columns = {...line[mainTableName]}
+        for (let table of joinTables) {  
+            joinTableName = table.model.tableName
+            if (!isParentTable(mainTableName, joinTableName)) {
+                columns[joinTableName] = {...line[joinTableName]}
+            }
+        }
         arrResult.push(columns)
+        columns = {}
     }
-    
-    const uniqueColValues = [...new Set(arrResult)]
-
-
-    console.log(uniqueColValues)
-    return dbRes
+ 
+    return arrResult
 }
 
 module.exports = {checkEmailFormat, checkNickNameFormat, checkPasswordFormat, hashPassword, comparePasswords, formatSelectResponse}
