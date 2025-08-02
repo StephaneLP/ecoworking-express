@@ -8,7 +8,6 @@ const pool = mariadb.createPool({
      database: process.env.DB_DATABASE,
      port: process.env.DB_PORT,
      bigIntAsNumber: true,
-    //  rowsAsArray: true,
      connectionLimit: 5,
 })
 

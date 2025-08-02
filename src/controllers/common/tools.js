@@ -70,7 +70,8 @@ const formatSelectResponse = (params, dbRes) => {
         columns = {}
     }
  
-    return arrResult
+    // return arrResult
+    return dbRes
 }
 
 module.exports = {checkEmailFormat, checkNickNameFormat, checkPasswordFormat, hashPassword, comparePasswords, formatSelectResponse}

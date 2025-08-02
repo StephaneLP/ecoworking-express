@@ -6,14 +6,16 @@ SELECT
 
 const sqlSelect = (params) =>  {
     // SELECT : liste des colonnes
-    const reqColumns = [...buildColumnsList(params)].join(', ')
-
+    let reqColumns = [...buildColumnsList(params)].join(', ')
+//     reqColumns += `, ecoworking.id AS sortId`
+// console.log('STOP', reqColumns)
     // FROM : tables et jointures
     const reqFROM = buildFromConditions(params)
 
     // WHERE : liste des conditions et tableau des valeurs
     const conditions = buildWhereConditions(params)
     const arrParams = [...conditions.params]
+
     const reqConditions = [...conditions.conditions].join(' AND ')
     const reqWhere = reqConditions ? ` WHERE ${reqConditions}` : ''
 
