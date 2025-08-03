@@ -26,4 +26,15 @@ const isParentTable = (mainTableName, table) => {
     return dbRelations[mainTableName][table][0] === relationType.oneToMany
 }
 
-module.exports = {op, dbRelations, isParentTable}
+const areChildrenTables = (mainTableName, joinTables) => {
+    let joinTableName
+
+    for (let table of joinTables) {
+        joinTableName = table.model.tableName
+        if (dbRelations[mainTableName][joinTableName][0] === relationType.oneToMany) return true
+    }
+
+    return false
+}
+
+module.exports = {op, dbRelations, isParentTable, areChildrenTables}

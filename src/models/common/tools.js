@@ -9,12 +9,24 @@ const buildColumnsList = (params) => {
     const mainTable = params.tables.mainTable
     const joinTables = params.tables.joinTables
     const arrColumns = []
-    let mainTableName, joinTableName
+    let mainTableName, joinTableName, primaryKey = ''
 
     // Table principale
     mainTableName = mainTable.model.tableName
     for (let column of mainTable.columns) {
         arrColumns.push(`${mainTableName}.${column}`)
+    }
+
+    // Ajout de la clé primaire (sortId) pour la mise en forme JSON si tables enfants jointes
+    if (mainTable.areChildrenTables) {
+        const tableColumns = mainTable.model.tableColumns
+        for (let column in tableColumns) {
+            if (tableColumns[column].primaryKey) {
+                primaryKey = column
+                continue
+            }
+        }
+        arrColumns.push(`${mainTableName}.${primaryKey} AS sortID`)
     }
 
     // Tables jointes (facultatives)

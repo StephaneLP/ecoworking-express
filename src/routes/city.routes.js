@@ -7,6 +7,9 @@ router.route('/')
     .get(cityController.readCities)
     .post(cityController.createCity)
 
+router.route('/all/')
+    .get(cityController.readAllCities)
+
 router.route('/:id')    
     .get(authenticate, authorize(['superadmin','admin']), cityController.readCityById)
     // .get(cityController.readCityById)

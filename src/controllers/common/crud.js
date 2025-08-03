@@ -1,6 +1,7 @@
 const {sendResult, sendError} = require('../../utils/result')
 const queries = require('../../models/common/queries')
 const {formatSelectResponse} = require('./tools')
+const {areChildrenTables} = require('../../config/db.params')
 
 /*********************************************************
 READ
@@ -9,6 +10,9 @@ READ
 const readRecords = (params) => {
     return async (req, res) => {
         try {
+            const tables = params.tables
+            tables.mainTable['areChildrenTables'] = areChildrenTables(tables.mainTable.model.tableName, tables.joinTables)
+
             const dbRes = await queries.runQuerySelect(params)
 
             if (!dbRes.success) {
