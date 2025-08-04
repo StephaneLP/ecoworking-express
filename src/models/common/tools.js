@@ -18,7 +18,7 @@ const buildColumnsList = (params) => {
     }
 
     // Ajout de la clé primaire (sortId) pour la mise en forme JSON si tables enfants jointes
-    if (mainTable.areChildrenTables) {
+    if (mainTable.hasChildren) {
         const tableColumns = mainTable.model.tableColumns
         for (let column in tableColumns) {
             if (tableColumns[column].primaryKey) {

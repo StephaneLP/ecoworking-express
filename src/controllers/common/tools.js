@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt')
-const {isParentTable} = require('../../config/db.params')
+const {isParent} = require('../../config/db.params')
 
 /*********************************************************
 INSCRIPTION, AUTHENTIFICATION, AUTHORISATION
@@ -51,7 +51,7 @@ const comparePasswords = async (password, dbPassword) => {
 MISE EN FORME DE LA RÉPONSE DE LA REQUÊTE
 *********************************************************/
 
-const formatSelectResponse = (params, dbRes) => {
+const formatResponse = (params, dbRes) => {
     const mainTable = params.tables.mainTable
     const joinTables = params.tables.joinTables
     const mainTableName = mainTable.model.tableName
@@ -62,7 +62,7 @@ const formatSelectResponse = (params, dbRes) => {
         columns = {...line[mainTableName]}
         for (let table of joinTables) {  
             joinTableName = table.model.tableName
-            if (!isParentTable(mainTableName, joinTableName)) {
+            if (!isParent(mainTableName, joinTableName)) {
                 columns[joinTableName] = {...line[joinTableName]}
             }
         }
@@ -70,8 +70,8 @@ const formatSelectResponse = (params, dbRes) => {
         columns = {}
     }
  
-    // return arrResult
-    return dbRes
+    return arrResult
+    // return dbRes
 }
 
-module.exports = {checkEmailFormat, checkNickNameFormat, checkPasswordFormat, hashPassword, comparePasswords, formatSelectResponse}
+module.exports = {checkEmailFormat, checkNickNameFormat, checkPasswordFormat, hashPassword, comparePasswords, formatResponse}

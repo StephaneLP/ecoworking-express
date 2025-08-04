@@ -1,7 +1,7 @@
 const {sendResult, sendError} = require('../../utils/result')
 const queries = require('../../models/common/queries')
-const {formatSelectResponse} = require('./tools')
-const {areChildrenTables} = require('../../config/db.params')
+const {formatResponse} = require('./tools')
+const {hasChildren} = require('../../config/db.params')
 
 /*********************************************************
 READ
@@ -11,7 +11,7 @@ const readRecords = (params) => {
     return async (req, res) => {
         try {
             const tables = params.tables
-            tables.mainTable['areChildrenTables'] = areChildrenTables(tables.mainTable.model.tableName, tables.joinTables)
+            tables.mainTable['hasChildren'] = hasChildren(tables.mainTable.model.tableName, tables.joinTables)
 
             const dbRes = await queries.runQuerySelect(params)
 
@@ -19,7 +19,7 @@ const readRecords = (params) => {
                 return sendError(res, 400, `${params.functionName}/${dbRes.functionName}`, 'Erreur Requête', dbRes.msg)
             }
 
-            const formatDbRes = Number(process.env.DB_RES_FORMAT_NATIVE) ? dbRes.result : formatSelectResponse(params, dbRes.result)
+            const formatDbRes = Number(process.env.DB_RES_NEST_FORMAT) ? formatResponse(params, dbRes.result) : dbRes.result
             sendResult(res, 200, params.functionName, 'Requête exécutée avec succès', dbRes.result.length, formatDbRes)
         }
         catch(err) {

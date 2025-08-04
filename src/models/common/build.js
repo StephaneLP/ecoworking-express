@@ -7,7 +7,7 @@ SELECT
 const sqlSelect = (params) =>  {
     // SELECT : liste des colonnes
     let reqColumns = [...buildColumnsList(params)].join(', ')
-console.log('STOP', reqColumns)
+
     // FROM : tables et jointures
     const reqFROM = buildFromConditions(params)
 

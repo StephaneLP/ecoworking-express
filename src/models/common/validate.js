@@ -17,7 +17,6 @@ const checkQueryParams = (params) => {
                 if(!constraints) {
                     return {success: false, functionName: 'validate.checkQueryParams', msg: `Colonne '${param.column}' absente de la BDD`}
                 }
-                console.log(param.values)
                 for (let i in param.values) {
                     value = param.values[i]
 
