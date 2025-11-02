@@ -58,7 +58,13 @@ const formatResponse = (params, dbRes) => {
     let joinTableName, columns
     const arrResult = []
 
-    for (let line of dbRes) {          
+
+
+    for (let line of dbRes) {      
+        
+        
+
+        
         columns = {...line[mainTableName]}
         for (let table of joinTables) {  
             joinTableName = table.model.tableName

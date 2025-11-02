@@ -19,7 +19,7 @@ const authenticate = (req, res, next) => {
         next()
     }
     catch(err) {
-        sendError(res, 500, 'authenticate', 'Erreur Serveur', `${err.name} - ${err.message}`)
+        sendError(res, 401, 'authenticate', 'L\'authentification a échoué, accès à la ressource refusé', `${err.name} - ${err.message}`)
     }
 }
 

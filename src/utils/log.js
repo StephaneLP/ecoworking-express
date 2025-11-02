@@ -21,7 +21,7 @@ const logMessage = (type, msg) => {
             file = '/log/no-type-specified.log'
     }
 
-    fs.appendFile(file, message + '\n', function (err) {
+    fs.appendFile(file, message + '\n', (err) => {
         if (err && isDev) {
             console.log(`Erreur d'écriture dans le fichier log (${err})`)
             return
