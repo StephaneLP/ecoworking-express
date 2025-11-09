@@ -41,7 +41,7 @@ const readRecordById = (params) => {
                 return sendError(res, 404, params.functionName, 'Aucune ligne n\'a été trouvée', 'La requête a retourné un tableau vide')
             }
 
-            const formatDbRes = Number(process.env.DB_RES_FORMAT_NATIVE) ? dbRes.result : formatSelectResponse(params, dbRes.result)
+            const formatDbRes = Number(process.env.DB_RES_FORMAT_NATIVE) ? dbRes.result : formatResponse(params, dbRes.result)
             sendResult(res, 200, params.functionName, 'Requête exécutée avec succès', dbRes.result.length, formatDbRes)
         }
         catch(err) {

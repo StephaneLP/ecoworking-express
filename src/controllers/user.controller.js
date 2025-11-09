@@ -81,7 +81,7 @@ const connectUser = async (req, res) => {
         }
         
         // Création du token et réponse au client
-        const token = jwt.sign({userId: user[0].id}, process.env.SECRET_JWT_KEY, {expiresIn: '48h'})
+        const token = jwt.sign({userId: user[0].id}, process.env.SECRET_JWT_KEY, {expiresIn: process.env.DURATION_CONNECT_USER})
         sendResult(res, 200, 'connectUser', 'Authentification validée (1 token envoyé)', 1, [{token: token, nickname: user[0].nickname}])
     }
     catch(err) {
