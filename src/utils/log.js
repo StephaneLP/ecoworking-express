@@ -18,7 +18,7 @@ const logMessage = (type, msg) => {
             file = './logs/request.log'
             break
         default :
-            file = '/log/no-type-specified.log'
+            file = './log/no-type-specified.log'
     }
 
     fs.appendFile(file, message + '\n', (err) => {

@@ -2,9 +2,9 @@ const jwt = require("jsonwebtoken")
 const crud = require('./common/crud')
 const queries = require('../models/common/queries')
 const {user} = require('../models/user.model')
-const {sendResult, sendError} = require('../utils/result')
-const {trimStringValues} = require('../utils/tools')
-const tools = require('./common/tools')
+const {sendResult, sendError} = require('./common/result')
+const {hashPassword, comparePasswords} = require('./common/auth')
+const {trimStringValues,checkEmailFormat, checkNickNameFormat, checkPasswordFormat} = require('../utils/tools')
 
 /*********************************************************
 [INSCRIPTION] CREATE / POST / INSERT INTO
@@ -14,22 +14,22 @@ const createUser = async (req, res) => {
     const body = trimStringValues(req.body)
 
     // Contrôle du format l'email
-    if (!tools.checkEmailFormat(body.email)) {
+    if (!checkEmailFormat(body.email)) {
         return sendError(res, 400, 'createUser', 'Le format de l\'email est incorrect', '')    
     }
 
     // Contrôle du format du pseudo
-    if (!tools.checkNickNameFormat(body.nickname)) {
+    if (!checkNickNameFormat(body.nickname)) {
         return sendError(res, 400, 'createUser', 'Le format du pseudo est incorrect', '')      
     }
 
     // Contrôle du format du mot de passe
-    if (!tools.checkPasswordFormat(body.password)) {
+    if (!checkPasswordFormat(body.password)) {
         return sendError(res, 400, 'createUser', 'Le format du mot de passe est incorrect', '')        
     }
 
     // Hachage du mot de passe
-    const hash = await tools.hashPassword(body.password)
+    const hash = await hashPassword(body.password)
     if (!hash.success) {
         return sendError(res, 500, 'createUser/hashPassword', 'Erreur Serveur', hash.msg)
     }
@@ -75,7 +75,7 @@ const connectUser = async (req, res) => {
         }
 
         // Le mot de passe correspond-il ? Si non message d'erreur
-        const match = await tools.comparePasswords(password, user[0].password)
+        const match = await comparePasswords(password, user[0].password)
         if (!match) {
             return sendError(res, 401, 'connectUser', 'Identifiant ou mot de passe incorrect', '')
         }

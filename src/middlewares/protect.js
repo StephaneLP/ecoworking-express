@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken")
 const queries = require('../models/common/queries')
-const {sendError} = require('../utils/result')
+const {sendError} = require('../controllers/common/result')
 
 const authenticate = (req, res, next) => {
     try {

@@ -1,6 +1,5 @@
-const {sendResult, sendError} = require('../../utils/result')
+const {sendResult, sendError, formatResponse} = require('./result')
 const queries = require('../../models/common/queries')
-const {formatResponse} = require('./tools')
 const {hasChildren} = require('../../config/db.params')
 
 /*********************************************************
