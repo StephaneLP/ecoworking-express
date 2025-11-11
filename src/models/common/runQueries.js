@@ -1,9 +1,9 @@
-const db = require('../../config/db')
-const build = require('./build.js')
+const db = require('../../config/db.js')
+const build = require('./buildQueries.js')
 const {checkURIParam, checkQueryParams, checkOrderParams, checkBodyParams} = require('./validate.js')
 
 /*********************************************************
-SELECT
+ÉXÉCUTION REQUÊTE SELECT
 *********************************************************/
 
 const runQuerySelect = async (params) => {
@@ -61,7 +61,7 @@ const runQuerySelectById = async (params) => {
 }
 
 /*********************************************************
-INSERT INTO
+ÉXÉCUTION REQUÊTE INSERT INTO
 *********************************************************/
 
 const runQueryInsert = async (params) => {
@@ -93,7 +93,7 @@ const runQueryInsert = async (params) => {
 }
 
 /*********************************************************
-UPDATE
+ÉXÉCUTION REQUÊTE UPDATE
 *********************************************************/
 
 const runQueryUpdateById = async (params) => {
@@ -128,7 +128,7 @@ const runQueryUpdateById = async (params) => {
 }
 
 /*********************************************************
-DELETE
+ÉXÉCUTION REQUÊTE DELETE
 *********************************************************/
 
 const runQueryDeleteById = async (params) => {
@@ -156,7 +156,7 @@ const runQueryDeleteById = async (params) => {
 }
 
 /*********************************************************
-FONCTIONS INTERNES
+ÉXÉCUTION REQUÊTE (CHAÎNE SQL PASSÉE EN PARAMÈTRE)
 *********************************************************/
 
 const runGetQuery = async (sql, values) => {

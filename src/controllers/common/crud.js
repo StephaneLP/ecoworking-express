@@ -1,5 +1,5 @@
 const {sendResult, sendError, formatResponse} = require('./result')
-const queries = require('../../models/common/queries')
+const queries = require('../../models/common/runQueries')
 const {hasChildren} = require('../../config/db.params')
 
 /*********************************************************
@@ -10,8 +10,9 @@ const readRecords = (params) => {
     return async (req, res) => {
         try {
             const tables = params.tables
+            console.log(tables)
             tables.mainTable['hasChildren'] = hasChildren(tables.mainTable.model.tableName, tables.joinTables)
-
+            console.log(tables)
             const dbRes = await queries.runQuerySelect(params)
 
             if (!dbRes.success) {

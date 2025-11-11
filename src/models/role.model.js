@@ -11,8 +11,18 @@ const role = {
             nullAuthorized: false,
             length: 20,
             emptyAuthorized: false,
+        },
+        code: {
+            type: 'string',
+            nullAuthorized: false,
+            length: 10,
+            emptyAuthorized: false
+        },
+        rank: {
+            type: 'integer',
+            nullAuthorized: false
         }
     }
 }
 
-module.exports = {role}
+module.exports = role

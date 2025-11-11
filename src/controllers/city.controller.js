@@ -1,5 +1,5 @@
-const {city} = require('../models/city.model')
-const {ecoworking} = require('../models/ecoworking.model')
+const city = require('../models/city.model')
+const ecoworking = require('../models/ecoworking.model')
 const crud = require('./common/crud')
 const {trimStringValues} = require('../utils/tools')
 const {op} = require('../config/db.params')
@@ -8,42 +8,6 @@ const {op} = require('../config/db.params')
 READ / GET / SELECT
 *********************************************************/
 
-const readAllCities = (req, res) => {
-    const query = trimStringValues(req.query)
-
-    // TABLES & COLONNES (SELECT...FROM...)
-    const tables = {
-        mainTable: {
-            model: city,
-            columns: ['name', 'is_active']
-        },
-        joinTables : []
-    }
-
-    // FILTRE (clause WHERE)
-    const queryParams = []
-    
-    if(query.is_active) queryParams.push({
-        model: city, 
-        column: 'is_active', 
-        op: op.equal, 
-        values: [query.is_active]})
-
-    // TRI (clause ORDER BY)
-    const orderParams = [
-        {model: city, column: query.sort || 'name', direction: query.dir || 'ASC'}
-    ]
-
-    const params = {
-        tables: tables,
-        queryParams: queryParams,
-        orderParams: orderParams,
-        functionName: 'readCities',
-    }
-
-    crud.readRecords(params)(req, res)
-}
-
 const readCities = (req, res) => {
     const query = trimStringValues(req.query)
 
@@ -51,7 +15,7 @@ const readCities = (req, res) => {
     const tables = {
         mainTable: {
             model: city,
-            columns: ['id', 'name', 'is_active', 'created_at', 'updated_at']
+            columns: ['*']
         },
         joinTables : [{
             model: ecoworking,
@@ -90,6 +54,34 @@ const readCities = (req, res) => {
         queryParams: queryParams,
         orderParams: orderParams,
         functionName: 'readCities',
+    }
+
+    crud.readRecords(params)(req, res)
+}
+
+const readCityList = (req, res) => {
+    const query = trimStringValues(req.query)
+
+    // TABLES & COLONNES (SELECT...FROM...)
+    const tables = {
+        mainTable: {
+            model: city,
+            columns: ['name']
+        },
+        joinTables : []
+    }
+
+    // FILTRE (clause WHERE)
+    const queryParams = [{model: city, column: 'is_active', op: op.equal, values: ['1']}]
+    
+    // TRI (clause ORDER BY)
+    const orderParams = [{model: city, column: query.sort || 'rank', direction: query.dir || 'ASC'}]
+
+    const params = {
+        tables: tables,
+        queryParams: queryParams,
+        orderParams: orderParams,
+        functionName: 'readCityList',
     }
 
     crud.readRecords(params)(req, res)
@@ -172,4 +164,4 @@ const deleteCityById = (req, res) => {
     crud.deleteRecordById(params)(req, res)
 }
 
-module.exports = {readAllCities, readCities, readCityById, deleteCityById, createCity, updateCityById}
+module.exports = {readCities, readCityList, readCityById, deleteCityById, createCity, updateCityById}

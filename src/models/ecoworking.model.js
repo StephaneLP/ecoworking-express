@@ -64,4 +64,4 @@ const ecoworking = {
     }
 }
 
-module.exports = {ecoworking}
+module.exports = ecoworking

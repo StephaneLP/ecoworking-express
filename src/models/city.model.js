@@ -16,6 +16,10 @@ const city = {
         is_active: {
             type: 'boolean',
             nullAuthorized: false
+        },
+        rank: {
+            type: 'integer',
+            nullAuthorized: false
         }
     },
     dateColumns: {
@@ -24,4 +28,4 @@ const city = {
     }
 }
 
-module.exports = {city}
+module.exports = city

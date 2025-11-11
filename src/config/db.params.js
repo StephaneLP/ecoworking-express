@@ -19,6 +19,9 @@ const dbRelations = {
         information: [relationType.oneToMany, 'ecoworking.id = information.ecoworking_id'],
         equipement: [relationType.oneToMany, 'ecoworking.id = equipement.ecoworking_id'],
         evaluation: [relationType.oneToMany, 'ecoworking.id = evaluation.ecoworking_id']
+    },
+    role: {
+        user: [relationType.oneToMany, 'role.id = user.role_id']
     }
 }
 

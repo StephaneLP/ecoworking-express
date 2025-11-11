@@ -1,7 +1,7 @@
-const {buildColumnsList, buildFromConditions, buildWhereConditions, buildSortConditions} = require('./tools')
+const {op, dbRelations} = require('../../config/db.params')
 
 /*********************************************************
-SELECT
+CONSTRUCTION REQUÊTE SELECT
 *********************************************************/
 
 const sqlSelect = (params) =>  {
@@ -41,7 +41,7 @@ const sqlSelectById = (params) =>  {
 }
 
 /*********************************************************
-INSERT INTO
+CONSTRUCTION REQUÊTE INSERT INTO
 *********************************************************/
 
 const sqlInsert = (params) => {
@@ -75,7 +75,7 @@ const sqlInsert = (params) => {
 }
 
 /*********************************************************
-UPDATE
+CONSTRUCTION REQUÊTE UPDATE
 *********************************************************/
 
 const sqlUpdateById = (params) => {
@@ -104,7 +104,7 @@ const sqlUpdateById = (params) => {
 }
 
 /*********************************************************
-DELETE
+CONSTRUCTION REQUÊTE DELETE
 *********************************************************/
 
 const sqlDeleteById = (params) =>  {
@@ -113,6 +113,107 @@ const sqlDeleteById = (params) =>  {
     const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
 
     return {reqString: `DELETE FROM ${params.table.tableName}${sqlWhereClause}`, reqParams: arrParams}
+}
+
+/*********************************************************
+CONSTRUCTION CLAUSES ET LISTES COLONNES REQUÊTE INSERT
+*********************************************************/
+
+// SELECT : colonnes
+const buildColumnsList = (params) => {
+    const mainTable = params.tables.mainTable
+    const joinTables = params.tables.joinTables
+    const arrColumns = []
+    let mainTableName, joinTableName, primaryKey = ''
+
+    // Table principale
+    mainTableName = mainTable.model.tableName
+    for (let column of mainTable.columns) {
+        arrColumns.push(`${mainTableName}.${column}`)
+    }
+
+    // Ajout de la clé primaire (sortId) pour la mise en forme JSON si tables enfants jointes
+    if (mainTable.hasChildren) {
+        const tableColumns = mainTable.model.tableColumns
+        for (let column in tableColumns) {
+            if (tableColumns[column].primaryKey) {
+                primaryKey = column
+                continue
+            }
+        }
+        arrColumns.push(`${mainTableName}.${primaryKey} AS sortID`)
+    }
+
+    // Tables jointes (facultatives)
+    for (let table of joinTables) {
+        joinTableName = table.model.tableName
+        for (let column of table.columns) {
+            arrColumns.push(`${joinTableName}.${column}`)
+        }        
+    }
+
+    return arrColumns
+}
+
+// clause FROM
+const buildFromConditions = (params) => {
+    const mainTable = params.tables.mainTable
+    const joinTables = params.tables.joinTables
+    const mainTableName = mainTable.model.tableName
+    let tableList, condition, joinTableName
+
+    tableList = mainTableName
+    for (let joinTable of joinTables) {
+        joinTableName = joinTable.model.tableName
+        condition = dbRelations[mainTableName][joinTableName][1]
+        tableList += ` INNER JOIN ${joinTableName} ON ${condition}`
+    }
+
+    return tableList
+}
+
+// Clause WHERE
+const buildWhereConditions = (params)  => {
+    const arrParams = [], arrPattern = [], arrConditions = []
+    let value, pattern
+
+    for (let param of params.queryParams) {
+        switch (param.op) {
+            case op.like:
+                value = param.values[0]
+                value = value.replace('%', '\\%')       
+                value = value.replace('_', '\\_')
+                value = param.pattern.replace('?', value)
+                arrParams.push(value)
+                pattern = '?'
+                break
+            case op.in:
+                param.values.forEach(e => {
+                    arrPattern.push('?')
+                    arrParams.push(e)
+                })
+                pattern = `(${arrPattern.join()})`
+                break
+            default:
+                value = param.values[0]
+                arrParams.push(value)
+                pattern = '?'
+        }
+    
+        arrConditions.push(`${param.model.tableName}.${param.column} ${param.op} ${pattern}`)
+    }
+
+    return {conditions: arrConditions, params: arrParams}
+}
+
+// Clause ORDER
+const buildSortConditions = (params) => {
+    const arrOrder = []
+    for (let sort of params.orderParams) {
+        arrOrder.push(`${sort.model.tableName}.${sort.column} ${sort.direction}`)
+    }
+
+    return arrOrder
 }
 
 module.exports = {sqlSelect, sqlSelectById, sqlDeleteById, sqlInsert, sqlUpdateById}

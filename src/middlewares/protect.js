@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken")
-const queries = require('../models/common/queries')
+const queries = require('../models/common/runQueries')
 const {sendError} = require('../controllers/common/result')
 
 const authenticate = (req, res, next) => {
@@ -32,7 +32,7 @@ const authorize = (roles) => {
             }
 
             // Requête pour trouver l'utilisateur correspondant à l'id userId
-            const sql = 'SELECT role.lib as role FROM user INNER JOIN role ON user.role_id = role.id WHERE user.id=?'
+            const sql = 'SELECT role.code as role FROM user INNER JOIN role ON user.role_id = role.id WHERE user.id=?'
             const user = await queries.runGetQuery(sql, [userId])
             const userRole = user[0].role
 
@@ -43,7 +43,7 @@ const authorize = (roles) => {
             next()        
         }
         catch(err) {
-            sendError(res, 500, 'connectUser', 'Erreur Serveur', err.message)
+            sendError(res, 500, 'authorize', 'Erreur Serveur', err.message)
         }
     }
 }

@@ -1,5 +1,5 @@
-const {ecoworking} = require('../models/ecoworking.model')
-const {city} = require('../models/city.model')
+const ecoworking = require('../models/ecoworking.model')
+const city = require('../models/city.model')
 const crud = require('./common/crud')
 const {trimStringValues} = require('../utils/tools')
 const {op} = require('../config/db.params')
