@@ -1,10 +1,99 @@
+const user = require('../models/user.model')
+const role = require('../models/role.model')
 const jwt = require("jsonwebtoken")
 const crud = require('./common/crud')
 const queries = require('../models/common/runQueries')
-const user = require('../models/user.model')
 const {sendResult, sendError} = require('./common/result')
 const {hashPassword, comparePasswords} = require('./common/auth')
-const {trimStringValues,checkEmailFormat, checkNickNameFormat, checkPasswordFormat} = require('../utils/tools')
+const {trimStringValues, checkEmailFormat, checkNickNameFormat, checkPasswordFormat} = require('../utils/tools')
+const {op} = require('../config/db.params')
+
+/*********************************************************
+READ / GET / SELECT
+*********************************************************/
+
+const readUsers = (req, res) => {
+    const query = trimStringValues(req.query)
+
+    // TABLES & COLONNES (SELECT...FROM...)
+    const tables = {
+        mainTable: {
+            model: user,
+            columns: ['*']
+        },
+        joinTables : [{
+            model: role,
+            columns: ['*']
+        }]
+    }
+
+    // FILTRE (clause WHERE)
+    const queryParams = []
+    
+    if(query.id) queryParams.push({
+        model: user, 
+        column: 'id', 
+        op: op.in, 
+        values: query.id.split(',')})
+
+    if(query.nickname) queryParams.push({
+        model: user, 
+        column: 'nickname', 
+        op: op.like, 
+        values: [query.nickname], pattern: '%?%'})
+
+    if(query.email) queryParams.push({
+        model: user, 
+        column: 'email', 
+        op: op.like, 
+        values: [query.email], pattern: '%?%'})
+
+    if(query.is_verified) queryParams.push({
+        model: user, 
+        column: 'is_verified', 
+        op: op.equal, 
+        values: [query.is_verified]})
+
+    // TRI (clause ORDER BY)
+    const orderParams = [{model: user, column: query.sort || 'nickname', direction: query.dir || 'ASC'}]
+
+    const params = {
+        tables: tables,
+        queryParams: queryParams,
+        orderParams: orderParams,
+        functionName: 'readUsers',
+    }
+
+    crud.readRecords(params)(req, res)
+}
+
+const readUserList = (req, res) => {
+    const query = trimStringValues(req.query)
+
+    // TABLES & COLONNES (SELECT...FROM...)
+    const tables = {
+        mainTable: {
+            model: user,
+            columns: ['nickname', 'email']
+        },
+        joinTables : []
+    }
+
+    // FILTRE (clause WHERE)
+    const queryParams = []
+    
+    // TRI (clause ORDER BY)
+    const orderParams = [{model: user, column: query.sort || 'nickname', direction: query.dir || 'ASC'}]
+
+    const params = {
+        tables: tables,
+        queryParams: queryParams,
+        orderParams: orderParams,
+        functionName: 'readUserList',
+    }
+
+    crud.readRecords(params)(req, res)
+}
 
 /*********************************************************
 [INSCRIPTION] CREATE / POST / INSERT INTO
@@ -89,4 +178,4 @@ const connectUser = async (req, res) => {
     }
 }
 
-module.exports = {createUser, connectUser}
+module.exports = {readUsers, readUserList, createUser, connectUser}

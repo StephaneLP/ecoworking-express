@@ -9,4 +9,4 @@ const checkJSONSyntax = (err, req, res, next) => {
     next()
 }
 
-module.exports = {checkJSONSyntax}
+module.exports = checkJSONSyntax

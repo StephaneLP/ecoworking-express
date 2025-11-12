@@ -2,7 +2,7 @@ const express = require('express')
 const serveFavicon = require('serve-favicon')
 const log = require('./src/utils/log')
 const app = express()
-const {checkJSONSyntax} = require('./src/middlewares/parseJSON')
+const checkJSONSyntax = require('./src/middlewares/parseJSON')
 
 /*********************************************************
 Middlewares

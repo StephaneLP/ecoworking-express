@@ -1,3 +1,4 @@
+const {hasChildren} = require('../../config/db.params')
 const {op, dbRelations} = require('../../config/db.params')
 
 /*********************************************************
@@ -132,8 +133,8 @@ const buildColumnsList = (params) => {
         arrColumns.push(`${mainTableName}.${column}`)
     }
 
-    // Ajout de la clé primaire (sortId) pour la mise en forme JSON si tables enfants jointes
-    if (mainTable.hasChildren) {
+    // Ajout de la clé primaire (sortId) pour la mise en forme JSON si tables enfants jointes    
+    if (hasChildren(mainTable.model.tableName, joinTables)) {
         const tableColumns = mainTable.model.tableColumns
         for (let column in tableColumns) {
             if (tableColumns[column].primaryKey) {

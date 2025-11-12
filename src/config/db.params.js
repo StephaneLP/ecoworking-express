@@ -22,21 +22,24 @@ const dbRelations = {
     },
     role: {
         user: [relationType.oneToMany, 'role.id = user.role_id']
+    },
+    user: {
+        role: [relationType.belongsTo, 'user.role_id = role.id'],
+        icon: [relationType.belongsTo, 'user.icon_id = icon.id'],
+        evaluation: [relationType.oneToMany, 'user.id = evaluation.user_id']
     }
 }
 
+// La table 'mainTableName' est-elle parente de la table 'table' (relation one to many) ?
 const isParent = (mainTableName, table) => {
     return dbRelations[mainTableName][table][0] === relationType.oneToMany
 }
 
+// La table 'mainTableName' est-elle parente d'au moins une table du tableau joinTables (relation one to many) ?
 const hasChildren = (mainTableName, joinTables) => {
-    let joinTableName
-
     for (let table of joinTables) {
-        joinTableName = table.model.tableName
-        if (dbRelations[mainTableName][joinTableName][0] === relationType.oneToMany) return true
+        if (isParent(mainTableName, table.model.tableName)) return true
     }
-
     return false
 }
 
