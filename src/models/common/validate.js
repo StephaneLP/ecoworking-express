@@ -15,7 +15,7 @@ const checkQueryParams = (params) => {
             for (let param of queryParams) {
                 constraints = param.model.tableColumns[param.column]
                 if(!constraints) {
-                    return {success: false, functionName: 'validate.checkQueryParams', msg: `Colonne '${param.column}' absente de la BDD`}
+                    return {success: false, functionName: 'validate.checkQueryParams', msg: `Colonne '${param.column}' absente du modèle`}
                 }
                 for (let i in param.values) {
                     value = param.values[i]
@@ -57,7 +57,7 @@ const checkOrderParams = (params) => {
         for (let sort of params.orderParams) {
             model = sort.model
             if (!model.tableColumns[sort.column]) {
-                return {success: false, functionName: 'validate.checkOrderParams', msg: `Colonne de tri '${sort.column}' absente de la BDD`}
+                return {success: false, functionName: 'validate.checkOrderParams', msg: `Colonne de tri '${sort.column}' absente du modèle`}
             }
             sort.direction = (sort.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')            
         }
@@ -79,11 +79,11 @@ const checkURIParam = (params) => {
     const URIParam = params.URIParam
 
     if (!URIParam.value) {
-        return {success: false, msg: 'La chaîneURIParameter est vide'}
+        return {success: false, msg: 'La chaîne URIParameter est vide'}
     }
     try {
-        const constraint = URIParam.model.tableColumns[URIParam.column]
-        const dataType = constraint.type
+        const constraints = URIParam.model.tableColumns[URIParam.column]
+        const dataType = constraints.type
 
         switch (dataType) {
             case 'integer':
@@ -93,7 +93,7 @@ const checkURIParam = (params) => {
                 URIParam.value = Number(URIParam.value)
                 break
             case 'string':
-                if (URIParam.value.length > constraint.length) {
+                if (URIParam.value.length > constraints.length) {
                     return {success: false, functionName: 'validate.checkURIParam', msg: `Erreur longueur (colonne '${URIParam.column}', longueur max : ${constraint.length})`}
                 }
                 break
@@ -117,7 +117,7 @@ const checkBodyParams = (params) => {
         for (let column in bodyParams) {
             constraints = model.tableColumns[column]
             if(!constraints) {
-                return {success: false, functionName: 'validate.checkBodyParams', msg: `Colonne '${column}' absente de la BDD`}
+                return {success: false, functionName: 'validate.checkBodyParams', msg: `Colonne '${column}' absente du modèle`}
             }
             value = bodyParams[column]
             if (value === null) {
