@@ -38,7 +38,7 @@ const isParent = (mainTableName, table) => {
 // La table 'mainTableName' est-elle parente d'au moins une table du tableau joinTables (relation one to many) ?
 const hasChildren = (mainTableName, joinTables) => {
     for (let table of joinTables) {
-        if (isParent(mainTableName, table.model.tableName)) return true
+        if (isParent(mainTableName, table[0].tableName)) return true
     }
     return false
 }

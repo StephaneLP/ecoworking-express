@@ -18,7 +18,7 @@ const readRecords = (params) => {
             sendResult(res, 200, params.functionName, 'Requête exécutée avec succès', dbRes.result.length, formatDbRes)
         }
         catch(err) {
-            sendError(res, 500, params.functionName, 'Erreur Serveur', err.message)
+            sendError(res, 500, `readRecords (${params.functionName})`, 'Erreur Serveur', err.message)
         }
     }
 }

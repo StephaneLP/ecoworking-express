@@ -11,43 +11,20 @@ READ / GET / SELECT
 const readCities = (req, res) => {
     const query = trimStringValues(req.query)
 
-    // TABLES & COLONNES (SELECT...FROM...)
+    // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
-        mainTable: {
-            model: city,
-            columns: ['*']
-        },
-        joinTables : [{
-            model: ecoworking,
-            columns: ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']
-        }]
+        mainTable: [city, ['*']],
+        joinTables : [[ecoworking, ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']]]
     }
 
-    // FILTRE (clause WHERE)
+    // FILTRE (WHERE) / Template : [ modèle, colonne, opérateur, [valeurs] (,option : paterne)]
     const queryParams = []
-    
-    if(query.id) queryParams.push({
-        model: city, 
-        column: 'id', 
-        op: op.in, 
-        values: query.id.split(',')})
+    if(query.id) queryParams.push([city, 'id', op.in, query.id.split(',')])
+    if(query.name) queryParams.push([city, 'name', op.like, [query.name], '%?%'])
+    if(query.is_active) queryParams.push([city, 'is_active', op.equal, [query.is_active]])
 
-    if(query.name) queryParams.push({
-        model: city, 
-        column: 'name', 
-        op: op.like, 
-        values: [query.name], pattern: '%?%'})
-
-    if(query.is_active) queryParams.push({
-        model: city, 
-        column: 'is_active', 
-        op: op.equal, 
-        values: [query.is_active]})
-
-    // TRI (clause ORDER BY)
-    const orderParams = [
-        {model: city, column: query.sort || 'name', direction: query.dir || 'ASC'}
-    ]
+    // TRI (ORDER BY) / Template [modèle, colonne, direction]
+    const orderParams = [[city, query.col || 'name', query.dir || 'ASC']]
 
     const params = {
         tables: tables,
@@ -62,20 +39,17 @@ const readCities = (req, res) => {
 const readCityList = (req, res) => {
     const query = trimStringValues(req.query)
 
-    // TABLES & COLONNES (SELECT...FROM...)
+    // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
-        mainTable: {
-            model: city,
-            columns: ['name']
-        },
+        mainTable: [city, ['name']],
         joinTables : []
     }
 
-    // FILTRE (clause WHERE)
-    const queryParams = [{model: city, column: 'is_active', op: op.equal, values: ['1']}]
+    // FILTRE (WHERE) / Template : [ modèle, colonne, opérateur, [valeurs] (,option : paterne)]
+    const queryParams = [[city, 'is_active', op.equal, ['1']]]
     
-    // TRI (clause ORDER BY)
-    const orderParams = [{model: city, column: query.sort || 'rank', direction: query.dir || 'ASC'}]
+    // TRI (ORDER BY) / Template [modèle, colonne, direction]
+    const orderParams = [[city, 'rank', 'ASC'], [city, 'name', 'ASC']]
 
     const params = {
         tables: tables,
@@ -88,17 +62,14 @@ const readCityList = (req, res) => {
 }
 
 const readCityById = (req, res) => {
-    // Paramètre transmis par l'URL (URI Param)
-    const URIParam = {model: city, column: 'id', op: op.equal, value: req.params.id.trim()}
-
-    // TABLES & COLONNES (SELECT...FROM...)
+    // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
-        mainTable: {
-            model: city,
-            columns: ['*']
-        },
+        mainTable: [city, ['name']],
         joinTables : []
     }
+
+    // Paramètre transmis par l'URL (URI Param)
+    const URIParam = [city, 'id', op.equal, req.params.id.trim()]
 
     const params = {
         tables: tables,
@@ -132,7 +103,7 @@ UPDATE / PUT / INSERT INTO
 
 const updateCityById = (req, res) => {
     // Paramètre transmis par l'URL (URI Param)
-    const URIParam = {model: city, column: 'id', op: op.equal, value: req.params.id.trim()}
+    const URIParam = [city, 'id', op.equal, req.params.id.trim()]
 
     // Données transmises dans le corps de la requête
     const body = trimStringValues(req.body)
@@ -153,7 +124,7 @@ DELETE / DELETE / DELETE
 
 const deleteCityById = (req, res) => {
     // Paramètre transmis par l'URL (URI Param)
-    const URIParam = {model: city, column: 'id', op: op.equal, value: req.params.id.trim()}
+    const URIParam = [city, 'id', op.equal, req.params.id.trim()]
 
     const params = {
         table: city,

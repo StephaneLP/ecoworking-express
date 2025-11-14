@@ -8,7 +8,7 @@ MISE EN FORME DE LA RÉPONSE DE LA REQUÊTE
 const formatResponse = (params, dbRes) => {
     const mainTable = params.tables.mainTable
     const joinTables = params.tables.joinTables
-    const mainTableName = mainTable.model.tableName
+    const mainTableName = mainTable[0].tableName
     let joinTableName, columns
     const arrResult = []
 
@@ -21,7 +21,7 @@ const formatResponse = (params, dbRes) => {
         
         columns = {...line[mainTableName]}
         for (let table of joinTables) {  
-            joinTableName = table.model.tableName
+            joinTableName = table[0].tableName
             if (!isParent(mainTableName, joinTableName)) {
                 columns[joinTableName] = {...line[joinTableName]}
             }

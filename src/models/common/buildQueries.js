@@ -7,7 +7,7 @@ CONSTRUCTION REQUÊTE SELECT
 
 const sqlSelect = (params) =>  {
     // SELECT : liste des colonnes
-    let reqColumns = [...buildColumnsList(params)].join(', ')
+    const reqColumns = buildColumnsList(params).join(', ')
 
     // FROM : tables et jointures
     const reqFROM = buildFromConditions(params)
@@ -15,7 +15,6 @@ const sqlSelect = (params) =>  {
     // WHERE : liste des conditions et tableau des valeurs
     const conditions = buildWhereConditions(params)
     const arrParams = [...conditions.params]
-
     const reqConditions = [...conditions.conditions].join(' AND ')
     const reqWhere = reqConditions ? ` WHERE ${reqConditions}` : ''
 
@@ -28,15 +27,15 @@ const sqlSelect = (params) =>  {
 const sqlSelectById = (params) =>  {
     // SELECT : liste des colonnes
     let reqColumns = '*'
-    if (params.columns) reqColumns = [...buildColumnsList(params)].join(', ')
+    if (params.columns) reqColumns = buildColumnsList(params).join(', ')
 
     // FROM : tables et jointures
     const reqFROM = buildFromConditions(params)
 
     // WHERE : liste des conditions et tableau des valeurs
     const URIParam = params.URIParam
-    const arrParams = [URIParam.value]
-    const sqlWhereClause = ` WHERE ${params.URIParam.model.tableName}.${URIParam.column} ${URIParam.op} ?`
+    const arrParams = [URIParam[3]]
+    const sqlWhereClause = ` WHERE ${params.URIParam[0].tableName}.${URIParam[1]} ${URIParam[2]} ?`
 
     return {reqString: `SELECT ${reqColumns} FROM ${reqFROM}${sqlWhereClause}`, reqParams: arrParams}
 }
@@ -98,8 +97,8 @@ const sqlUpdateById = (params) => {
     }
 
     // Clause WHERE
-    const condition = `${URIParam.column} ${URIParam.op} ?`
-    arrParams.push(URIParam.value)
+    const condition = `${URIParam[1]} ${URIParam[2]} ?`
+    arrParams.push(URIParam[3])
     
     return {success: true, reqString: `UPDATE ${model.tableName} SET ${arrColumns.join()} WHERE ${condition}`, reqParams: arrParams}
 }
@@ -110,14 +109,14 @@ CONSTRUCTION REQUÊTE DELETE
 
 const sqlDeleteById = (params) =>  {
     const URIParam = params.URIParam
-    const arrParams = [URIParam.value]
-    const sqlWhereClause = ` WHERE ${URIParam.column} ${URIParam.op} ?`
+    const arrParams = [URIParam[3]]
+    const sqlWhereClause = ` WHERE ${URIParam[1]} ${URIParam[2]} ?`
 
     return {reqString: `DELETE FROM ${params.table.tableName}${sqlWhereClause}`, reqParams: arrParams}
 }
 
 /*********************************************************
-CONSTRUCTION CLAUSES ET LISTES COLONNES REQUÊTE INSERT
+CONSTRUCTION LISTE COLONNES REQUÊTE INSERT
 *********************************************************/
 
 // SELECT : colonnes
@@ -128,14 +127,14 @@ const buildColumnsList = (params) => {
     let mainTableName, joinTableName, primaryKey = ''
 
     // Table principale
-    mainTableName = mainTable.model.tableName
-    for (let column of mainTable.columns) {
+    mainTableName = mainTable[0].tableName
+    for (let column of mainTable[1]) {
         arrColumns.push(`${mainTableName}.${column}`)
     }
 
     // Ajout de la clé primaire (sortId) pour la mise en forme JSON si tables enfants jointes    
-    if (hasChildren(mainTable.model.tableName, joinTables)) {
-        const tableColumns = mainTable.model.tableColumns
+    if (hasChildren(mainTable[0].tableName, joinTables)) {
+        const tableColumns = mainTable[0].tableColumns
         for (let column in tableColumns) {
             if (tableColumns[column].primaryKey) {
                 primaryKey = column
@@ -147,8 +146,8 @@ const buildColumnsList = (params) => {
 
     // Tables jointes (facultatives)
     for (let table of joinTables) {
-        joinTableName = table.model.tableName
-        for (let column of table.columns) {
+        joinTableName = table[0].tableName
+        for (let column of table[1]) {
             arrColumns.push(`${joinTableName}.${column}`)
         }        
     }
@@ -156,16 +155,20 @@ const buildColumnsList = (params) => {
     return arrColumns
 }
 
+/*********************************************************
+CONSTRUCTION CLAUSES
+*********************************************************/
+
 // clause FROM
 const buildFromConditions = (params) => {
     const mainTable = params.tables.mainTable
     const joinTables = params.tables.joinTables
-    const mainTableName = mainTable.model.tableName
+    const mainTableName = mainTable[0].tableName
     let tableList, condition, joinTableName
 
     tableList = mainTableName
     for (let joinTable of joinTables) {
-        joinTableName = joinTable.model.tableName
+        joinTableName = joinTable[0].tableName
         condition = dbRelations[mainTableName][joinTableName][1]
         tableList += ` INNER JOIN ${joinTableName} ON ${condition}`
     }
@@ -179,39 +182,39 @@ const buildWhereConditions = (params)  => {
     let value, pattern
 
     for (let param of params.queryParams) {
-        switch (param.op) {
+        switch (param[2]) { // Opérateur
             case op.like:
-                value = param.values[0]
+                value = param[3][0] // Tableau des valeurs (1 élément)
                 value = value.replace('%', '\\%')       
                 value = value.replace('_', '\\_')
-                value = param.pattern.replace('?', value)
+                value = param[4].replace('?', value)
                 arrParams.push(value)
                 pattern = '?'
                 break
             case op.in:
-                param.values.forEach(e => {
+                param[3].forEach(e => {
                     arrPattern.push('?')
                     arrParams.push(e)
                 })
                 pattern = `(${arrPattern.join()})`
                 break
             default:
-                value = param.values[0]
+                value = param[3][0]
                 arrParams.push(value)
                 pattern = '?'
         }
     
-        arrConditions.push(`${param.model.tableName}.${param.column} ${param.op} ${pattern}`)
+        arrConditions.push(`${param[0].tableName}.${param[1]} ${param[2]} ${pattern}`)
     }
-
+console.log(arrConditions, arrParams)
     return {conditions: arrConditions, params: arrParams}
 }
 
 // Clause ORDER
 const buildSortConditions = (params) => {
     const arrOrder = []
-    for (let sort of params.orderParams) {
-        arrOrder.push(`${sort.model.tableName}.${sort.column} ${sort.direction}`)
+    for (let condition of params.orderParams) {
+        arrOrder.push(`${condition[0].tableName}.${condition[1]} ${condition[2]}`)
     }
 
     return arrOrder

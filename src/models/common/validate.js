@@ -13,30 +13,30 @@ const checkQueryParams = (params) => {
             let constraints, value
 
             for (let param of queryParams) {
-                constraints = param.model.tableColumns[param.column]
+                constraints = param[0].tableColumns[param[1]]
                 if(!constraints) {
-                    return {success: false, functionName: 'validate.checkQueryParams', msg: `Colonne '${param.column}' absente du modèle`}
+                    return {success: false, functionName: 'validate.checkQueryParams', msg: `Colonne '${param[1]}' absente du modèle`}
                 }
-                for (let i in param.values) {
-                    value = param.values[i]
+                for (let i in param[3]) {
+                    value = param[3][i]
 
                     switch (constraints.type) {
                         case 'integer':
                             if (!stringAsInteger(value)) {
-                                return {success: false, functionName: 'validate.checkQueryParams', msg: `Erreur type de donnée (colonne '${param.column}', type 'integer' attendu)`}
+                                return {success: false, functionName: 'validate.checkQueryParams', msg: `Erreur type de donnée (colonne '${param[1]}', type 'integer' attendu)`}
                             }
-                            param.values[i] = Number(value)
+                            param[3][i] = Number(value)
                             break
                         case 'string':
                             if (value.length > constraints.length) {
-                                return {success: false, functionName: 'validate.checkQueryParams', msg: `Erreur longueur (colonne '${param.column}', string longueur max : ${constraints.length})`}
+                                return {success: false, functionName: 'validate.checkQueryParams', msg: `Erreur longueur (colonne '${param[1]}', string longueur max : ${constraints.length})`}
                             }
                             break
                         case 'boolean':
                             if (!stringAsBoolean(value)) {
-                                return {success: false, functionName: 'validate.checkQueryParams', msg: `Erreur type de donnée (colonne '${param.column}', type 'boolean' attendu)`}
+                                return {success: false, functionName: 'validate.checkQueryParams', msg: `Erreur type de donnée (colonne '${param[1]}', type 'boolean' attendu)`}
                             }
-                            param.values[i] = (['1', 'true'].includes(value.toLowerCase()) ? 1 : 0)
+                            param[3][i] = (['1', 'true'].includes(value.toLowerCase()) ? 1 : 0)
                             break
                     }
                 }
@@ -52,14 +52,11 @@ const checkQueryParams = (params) => {
 
 const checkOrderParams = (params) => {
     try {
-        let model
-
-        for (let sort of params.orderParams) {
-            model = sort.model
-            if (!model.tableColumns[sort.column]) {
-                return {success: false, functionName: 'validate.checkOrderParams', msg: `Colonne de tri '${sort.column}' absente du modèle`}
+        for (let condition of params.orderParams) {
+            if (!condition[0].tableColumns[condition[1]]) {
+                return {success: false, functionName: 'validate.checkOrderParams', msg: `Colonne de tri '${condition[1]}' absente du modèle`}
             }
-            sort.direction = (sort.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC')            
+            condition[2] = (condition[2].toUpperCase() === 'DESC' ? 'DESC' : 'ASC')            
         }
 
         return {success: true}
@@ -78,23 +75,23 @@ VÉRIFICATION DES DONNÉES : REQUÊTES CREATE, UPDATE & DELETE
 const checkURIParam = (params) => {
     const URIParam = params.URIParam
 
-    if (!URIParam.value) {
+    if (!URIParam[3]) {
         return {success: false, msg: 'La chaîne URIParameter est vide'}
     }
     try {
-        const constraints = URIParam.model.tableColumns[URIParam.column]
+        const constraints = URIParam[0].tableColumns[URIParam[1]]
         const dataType = constraints.type
 
         switch (dataType) {
             case 'integer':
-                if (!stringAsInteger(URIParam.value)) {
-                    return {success: false, functionName: 'validate.checkURIParam', msg: `Erreur type de donnée (colonne '${URIParam.column}', type 'integer' attendu)`}
+                if (!stringAsInteger(URIParam[3])) {
+                    return {success: false, functionName: 'validate.checkURIParam', msg: `Erreur type de donnée (colonne '${URIParam[1]}', type 'integer' attendu)`}
                 }
-                URIParam.value = Number(URIParam.value)
+                URIParam[3] = Number(URIParam[3])
                 break
             case 'string':
-                if (URIParam.value.length > constraints.length) {
-                    return {success: false, functionName: 'validate.checkURIParam', msg: `Erreur longueur (colonne '${URIParam.column}', longueur max : ${constraint.length})`}
+                if (URIParam[3].length > constraints.length) {
+                    return {success: false, functionName: 'validate.checkURIParam', msg: `Erreur longueur (colonne '${URIParam[1]}', longueur max : ${constraints.length})`}
                 }
                 break
         }
