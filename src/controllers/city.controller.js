@@ -37,8 +37,6 @@ const readCities = (req, res) => {
 }
 
 const readCityList = (req, res) => {
-    const query = trimStringValues(req.query)
-
     // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
         mainTable: [city, ['name']],

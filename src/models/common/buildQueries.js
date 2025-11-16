@@ -206,7 +206,7 @@ const buildWhereConditions = (params)  => {
     
         arrConditions.push(`${param[0].tableName}.${param[1]} ${param[2]} ${pattern}`)
     }
-console.log(arrConditions, arrParams)
+
     return {conditions: arrConditions, params: arrParams}
 }
 

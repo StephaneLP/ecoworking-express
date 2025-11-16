@@ -13,35 +13,18 @@ const readRoles = (req, res) => {
 
     // TABLES & COLONNES (SELECT...FROM...)
     const tables = {
-        mainTable: {
-            model: role,
-            columns: ['*']
-        },
-        joinTables: [{
-            model: user,
-            columns: ['*']
-        }]
+        mainTable: [role, ['*']],
+        joinTables: [[user, ['*']]]
     }
 
     // FILTRE (clause WHERE)
     const queryParams = []
 
-    if(query.name) queryParams.push({
-        model: role, 
-        column: 'name', 
-        op: op.like, 
-        values: [query.name], pattern: '%?%'})
-
-    if(query.code) queryParams.push({
-        model: role, 
-        column: 'code', 
-        op: op.like, 
-        values: query.code.split(',')})
+    if(query.name) queryParams.push([role, 'name', op.like, [query.name], '%?%'])
+    if(query.code) queryParams.push([role, 'code', op.like, query.code.split(',')])
 
     // TRI (clause ORDER BY)
-    const orderParams = [
-        {model: role, column: query.sort || 'rank', direction: query.dir || 'ASC'}
-    ]
+    const orderParams = [[role, query.sort || 'rank', query.dir || 'ASC']]
     
     const params = {
         tables: tables,
@@ -58,10 +41,7 @@ const readRoleList = (req, res) => {
 
     // TABLES & COLONNES (SELECT...FROM...)
     const tables = {
-        mainTable: {
-            model: role,
-            columns: ['name', 'code']
-        },
+        mainTable: [role, ['*']],
         joinTables: []
     }
 
@@ -69,9 +49,7 @@ const readRoleList = (req, res) => {
     const queryParams = []
 
     // TRI (clause ORDER BY)
-    const orderParams = [
-        {model: role, column: query.sort || 'name', direction: query.dir || 'ASC'}
-    ]
+    const orderParams = [[role, query.sort || 'name', query.dir || 'ASC']]
 
     const params = {
         tables: tables,

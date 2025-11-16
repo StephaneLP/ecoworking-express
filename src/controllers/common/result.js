@@ -11,7 +11,7 @@ const formatResponse = (params, dbRes) => {
     const mainTableName = mainTable[0].tableName
     let joinTableName, columns
     const arrResult = []
-
+console.log('RES -> ', dbRes)
 
 
     for (let line of dbRes) {      

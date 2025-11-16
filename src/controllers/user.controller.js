@@ -17,45 +17,20 @@ const readUsers = (req, res) => {
 
     // TABLES & COLONNES (SELECT...FROM...)
     const tables = {
-        mainTable: {
-            model: user,
-            columns: ['*']
-        },
-        joinTables : [{
-            model: role,
-            columns: ['*']
-        }]
+        mainTable: [user, ['*']],
+        joinTables : [[role, ['*']]]
     }
 
     // FILTRE (clause WHERE)
     const queryParams = []
     
-    if(query.id) queryParams.push({
-        model: user, 
-        column: 'id', 
-        op: op.in, 
-        values: query.id.split(',')})
-
-    if(query.nickname) queryParams.push({
-        model: user, 
-        column: 'nickname', 
-        op: op.like, 
-        values: [query.nickname], pattern: '%?%'})
-
-    if(query.email) queryParams.push({
-        model: user, 
-        column: 'email', 
-        op: op.like, 
-        values: [query.email], pattern: '%?%'})
-
-    if(query.is_verified) queryParams.push({
-        model: user, 
-        column: 'is_verified', 
-        op: op.equal, 
-        values: [query.is_verified]})
+    if(query.id) queryParams.push([user, 'id', op.in, query.id.split(',')])
+    if(query.nickname) queryParams.push([user, 'nickname', op.like, [query.nickname], '%?%'])
+    if(query.email) queryParams.push([user, 'email', op.like, [query.email], '%?%'])
+    if(query.is_verified) queryParams.push([user, 'is_verified', op.equal, [query.is_verified]])
 
     // TRI (clause ORDER BY)
-    const orderParams = [{model: user, column: query.sort || 'nickname', direction: query.dir || 'ASC'}]
+    const orderParams = [[user, query.sort || 'nickname', query.dir || 'ASC']]
 
     const params = {
         tables: tables,
@@ -72,18 +47,15 @@ const readUserList = (req, res) => {
 
     // TABLES & COLONNES (SELECT...FROM...)
     const tables = {
-        mainTable: {
-            model: user,
-            columns: ['nickname', 'email']
-        },
-        joinTables : []
+        mainTable: [user, ['*']],
+        joinTables : [[role, ['*']]]
     }
 
     // FILTRE (clause WHERE)
     const queryParams = []
     
     // TRI (clause ORDER BY)
-    const orderParams = [{model: user, column: query.sort || 'nickname', direction: query.dir || 'ASC'}]
+    const orderParams = [[user, query.sort || 'nickname', query.dir || 'ASC']]
 
     const params = {
         tables: tables,
