@@ -141,7 +141,7 @@ const buildColumnsList = (params) => {
                 continue
             }
         }
-        arrColumns.push(`${mainTableName}.${primaryKey} AS sortID`)
+        arrColumns.push(`${mainTableName}.${primaryKey} AS parentID`)
     }
 
     // Tables jointes (facultatives)

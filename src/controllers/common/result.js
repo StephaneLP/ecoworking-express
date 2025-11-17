@@ -1,5 +1,5 @@
 const log = require('../../utils/log')
-const {isParent} = require('../../config/db.params')
+const {isParent, hasChildren} = require('../../config/db.params')
 
 /*********************************************************
 MISE EN FORME DE LA RÉPONSE DE LA REQUÊTE
@@ -9,29 +9,50 @@ const formatResponse = (params, dbRes) => {
     const mainTable = params.tables.mainTable
     const joinTables = params.tables.joinTables
     const mainTableName = mainTable[0].tableName
-    let joinTableName, columns
     const arrResult = []
-console.log('RES -> ', dbRes)
+    let joinTableName, datas
 
+    if (!hasChildren(mainTable[0].tableName, joinTables)) {
+        for (let line of dbRes) {      
+            datas = {...line[mainTableName]}
 
-    for (let line of dbRes) {      
-        
-        
-
-        
-        columns = {...line[mainTableName]}
-        for (let table of joinTables) {  
-            joinTableName = table[0].tableName
-            if (!isParent(mainTableName, joinTableName)) {
-                columns[joinTableName] = {...line[joinTableName]}
+            for (let table of joinTables) {  
+                joinTableName = table[0].tableName
+                datas[joinTableName] = {...line[joinTableName]}
             }
+
+            arrResult.push(datas)
+            datas = {}
         }
-        arrResult.push(columns)
-        columns = {}
     }
- 
+    else {
+        const arrStack = []
+        let parentID, key
+
+        for (let line of dbRes) {      
+            datas = {...line[mainTableName]}
+            parentID = datas['parentID']
+
+            for (let table of joinTables) {  
+                joinTableName = table[0].tableName
+
+                if (!arrStack.includes(parentID)) {
+                    datas[joinTableName] = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
+                    arrStack.push(parentID)
+                    arrResult.push(datas)
+                }
+                else {
+                    key = arrResult.findIndex((el) => el['parentID'] === parentID)
+                    arrResult[key][joinTableName].push({...line[joinTableName]})
+                }
+            }
+
+            datas = {}
+        }
+    }
+
+    arrResult.forEach(line => delete line.parentID)
     return arrResult
-    // return dbRes
 }
 
 /*********************************************************
