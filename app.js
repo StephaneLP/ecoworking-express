@@ -36,11 +36,13 @@ const cityRoutes = require('./src/routes/city.routes.js')
 const ecoworkingRoutes = require('./src/routes/ecoworking.routes.js')
 const userRoutes = require('./src/routes/user.routes.js')
 const roleRoutes = require('./src/routes/role.routes.js')
+const iconRoutes = require('./src/routes/icon.routes.js')
 
 app.use('/ville/', cityRoutes)
 app.use('/ecoworking/', ecoworkingRoutes)
 app.use('/utilisateur/', userRoutes)
 app.use('/role/', roleRoutes)
+app.use('/icone/', iconRoutes)
 
 /*********************************************************
 Ouverture du port

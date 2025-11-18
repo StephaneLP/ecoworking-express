@@ -12,7 +12,8 @@ const formatResponse = (params, dbRes) => {
     const arrResult = []
     let joinTableName, datas
 
-    if (!hasChildren(mainTable[0].tableName, joinTables)) {
+    const isMainTableParent = hasChildren(mainTable[0].tableName, joinTables)
+    if (!isMainTableParent) {
         for (let line of dbRes) {      
             datas = {...line[mainTableName]}
 

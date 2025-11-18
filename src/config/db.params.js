@@ -1,3 +1,5 @@
+const iconType = require("../models/iconType.model")
+
 const op = {
     equal: '=',
     like: 'LIKE',
@@ -27,6 +29,11 @@ const dbRelations = {
         role: [relationType.belongsTo, 'user.role_id = role.id'],
         icon: [relationType.belongsTo, 'user.icon_id = icon.id'],
         evaluation: [relationType.oneToMany, 'user.id = evaluation.user_id']
+    },
+    icon: {
+        icon_type: [relationType.belongsTo, 'icon.icon_type_id = icon_type.id'],
+        user: [relationType.oneToMany, 'icon.id = user.icon_id'],
+        equipement: [relationType.oneToMany, 'icon.id = equipement.icon_id'],
     }
 }
 
