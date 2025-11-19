@@ -1,0 +1,37 @@
+const equipment = {
+    tableName: 'equipment',
+    tableColumns: {
+        id: {
+            type: 'integer',
+            nullAuthorized: false,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        name: {
+            type: 'string',
+            nullAuthorized: false,
+            length: 254,
+            emptyAuthorized: false,
+        },
+        rank: {
+            type: 'integer',
+            nullAuthorized: false,
+        },
+        icon_id: {
+            type: 'integer',
+            nullAuthorized: false,
+            foreignKey: true
+        },
+        ecoworking_id: {
+            type: 'integer',
+            nullAuthorized: false,
+            foreignKey: true
+        }
+    },
+    dateColumns: {
+        createDate: 'created_at',
+        updateDate: 'updated_at'
+    }
+}
+
+module.exports = equipment

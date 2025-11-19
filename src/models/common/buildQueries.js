@@ -14,10 +14,10 @@ const sqlSelect = (params) =>  {
 
     // WHERE : liste des conditions et tableau des valeurs
     const conditions = buildWhereConditions(params)
+console.log('=>', conditions)
     const arrParams = [...conditions.params]
     const reqConditions = [...conditions.conditions].join(' AND ')
     const reqWhere = reqConditions ? ` WHERE ${reqConditions}` : ''
-
     // ORDER : tri
     const reqOrder = ` ORDER BY ${[...buildSortConditions(params)].join(', ')}`
 
@@ -198,6 +198,7 @@ const buildWhereConditions = (params)  => {
                     arrParams.push(e)
                 })
                 pattern = `(${arrPattern.join()})`
+                arrPattern.length = 0
                 break
             default:
                 value = param[3][0]

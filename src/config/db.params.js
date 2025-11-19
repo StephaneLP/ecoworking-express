@@ -13,6 +13,22 @@ const relationType = {
 }
 
 const dbRelations = {
+    role: {
+        user: [relationType.oneToMany, 'role.id = user.role_id']
+    },
+    user: {
+        role: [relationType.belongsTo, 'user.role_id = role.id'],
+        icon: [relationType.belongsTo, 'user.icon_id = icon.id'],
+        evaluation: [relationType.oneToMany, 'user.id = evaluation.user_id']
+    },
+    icon_type: {
+        icon: [relationType.oneToMany, 'icon_type.id = icon.icon_type_id']
+    },
+    icon: {
+        icon_type: [relationType.belongsTo, 'icon.icon_type_id = icon_type.id'],
+        user: [relationType.oneToMany, 'icon.id = user.icon_id'],
+        equipement: [relationType.oneToMany, 'icon.id = equipement.icon_id'],
+    },
     city: { 
         ecoworking: [relationType.oneToMany, 'city.id = ecoworking.city_id']
     },
@@ -22,18 +38,13 @@ const dbRelations = {
         equipement: [relationType.oneToMany, 'ecoworking.id = equipement.ecoworking_id'],
         evaluation: [relationType.oneToMany, 'ecoworking.id = evaluation.ecoworking_id']
     },
-    role: {
-        user: [relationType.oneToMany, 'role.id = user.role_id']
+    equipment: {
+        icon: [relationType.belongsTo, 'equipment.icon_id = icon.id'],
+        ecoworking: [relationType.belongsTo, 'equipment.ecoworking_id = ecoworking.id']
     },
-    user: {
-        role: [relationType.belongsTo, 'user.role_id = role.id'],
-        icon: [relationType.belongsTo, 'user.icon_id = icon.id'],
-        evaluation: [relationType.oneToMany, 'user.id = evaluation.user_id']
-    },
-    icon: {
-        icon_type: [relationType.belongsTo, 'icon.icon_type_id = icon_type.id'],
-        user: [relationType.oneToMany, 'icon.id = user.icon_id'],
-        equipement: [relationType.oneToMany, 'icon.id = equipement.icon_id'],
+    evaluation: {
+        user: [relationType.belongsTo, 'evaluation.user_id = user.id'],
+        ecoworking: [relationType.belongsTo, 'evaluation.ecoworking_id = ecoworking.id']
     }
 }
 

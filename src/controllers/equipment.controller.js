@@ -1,5 +1,6 @@
+const equipment = require('../models/equipment.model')
+const ecoworking = require('../models/ecoworking.model')
 const icon = require('../models/icon.model')
-const iconType = require('../models/iconType.model')
 const crud = require('./common/crud')
 const {trimStringValues} = require('../utils/tools')
 const {op} = require('../config/db.params')
@@ -8,38 +9,39 @@ const {op} = require('../config/db.params')
 READ / GET / SELECT
 *********************************************************/
 
-const readIcons = (req, res) => {
+const readEquipments = (req, res) => {
     const query = trimStringValues(req.query)
 
     // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
-        mainTable: [icon, ['*']],
-        joinTables : [[iconType, ['*']]]
+        mainTable: [equipment, ['*']],
+        joinTables : [[icon, ['*']], [ecoworking, ['*']]]
     }
 
     // FILTRE (WHERE) / Template : [ modèle, colonne, opérateur, [valeurs] (,option : paterne)]
     const queryParams = []
-    if(query.id) queryParams.push([icon, 'id', op.in, query.id.split(',')])
-    if(query.name) queryParams.push([icon, 'name', op.like, [query.name], '%?%'])
-    if(query.icon_type_id) queryParams.push([icon, 'icon_type_id', op.equal, [query.icon_type_id]])
+    if(query.id) queryParams.push([equipment, 'id', op.in, query.id.split(',')])
+    if(query.name) queryParams.push([equipment, 'name', op.like, [query.name], '%?%'])
+    if(query.iconid) queryParams.push([equipment, 'icon_id', op.in, [query.iconid]])
+    if(query.ecoworkingid) queryParams.push([equipment, 'ecoworking_id', op.in, [query.ecoworkingid]])
 
     // TRI (ORDER BY) / Template [modèle, colonne, direction]
-    const orderParams = [[icon, 'icon_type_id', 'ASC'], [icon, 'name', 'ASC']]
+    const orderParams = [[equipment, 'ecoworking_id', 'ASC'], [equipment, 'rank', 'ASC']]
 
     const params = {
         tables: tables,
         queryParams: queryParams,
         orderParams: orderParams,
-        functionName: 'readIcons',
+        functionName: 'readEquipments',
     }
 
     crud.readRecords(params)(req, res)
 }
 
-const readIconList = (req, res) => {
+const readEquipmentList = (req, res) => {
     // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
-        mainTable: [icon, ['*']],
+        mainTable: [equipment, ['*']],
         joinTables : []
     }
 
@@ -47,32 +49,32 @@ const readIconList = (req, res) => {
     const queryParams = []
     
     // TRI (ORDER BY) / Template [modèle, colonne, direction]
-    const orderParams = [[icon, 'icon_type_id', 'ASC'], [icon, 'name', 'ASC']]
+    const orderParams = [[equipment, 'ecoworking_id', 'ASC'], [equipment, 'rank', 'ASC']]
 
     const params = {
         tables: tables,
         queryParams: queryParams,
         orderParams: orderParams,
-        functionName: 'readIconList',
+        functionName: 'readEquipmentList',
     }
 
     crud.readRecords(params)(req, res)
 }
 
-const readIconById = (req, res) => {
+const readEquipmentById = (req, res) => {
     // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
-        mainTable: [icon, ['name']],
+        mainTable: [equipment, ['name']],
         joinTables : []
     }
 
     // Paramètre transmis par l'URL (URI Param)
-    const URIParam = [icon, 'id', op.equal, req.params.id.trim()]
+    const URIParam = [equipment, 'id', op.equal, req.params.id.trim()]
 
     const params = {
         tables: tables,
         URIParam: URIParam,
-        functionName: 'readIconById',
+        functionName: 'readEquipmentById',
     }
 
     crud.readRecordById(params)(req, res)
@@ -82,14 +84,14 @@ const readIconById = (req, res) => {
 CREATE / POST / INSERT INTO
 *********************************************************/
 
-const createIcon = (req, res) => {
+const createEquipment = (req, res) => {
     // Données transmises dans le corps de la requête
     const body = trimStringValues(req.body)
 
     const params = {
-        table: icon,
+        table: equipment,
         bodyParams: body,
-        functionName: 'createIcon',
+        functionName: 'createEquipment',
     }
 
     crud.createRecord(params)(req, res)
@@ -99,18 +101,18 @@ const createIcon = (req, res) => {
 UPDATE / PUT / INSERT INTO
 *********************************************************/
 
-const updateIconById = (req, res) => {
+const updateEquipmentById = (req, res) => {
     // Paramètre transmis par l'URL (URI Param)
-    const URIParam = [icon, 'id', op.equal, req.params.id.trim()]
+    const URIParam = [equipment, 'id', op.equal, req.params.id.trim()]
 
     // Données transmises dans le corps de la requête
     const body = trimStringValues(req.body)
 
     const params = {
-        table: icon,
+        table: equipment,
         URIParam: URIParam,
         bodyParams: body,
-        functionName: 'updateIconById',
+        functionName: 'updateEquipmentById',
     }
 
     crud.updateRecordById(params)(req, res)
@@ -120,17 +122,17 @@ const updateIconById = (req, res) => {
 DELETE / DELETE / DELETE
 *********************************************************/
 
-const deleteIconById = (req, res) => {
+const deleteEquipmentById = (req, res) => {
     // Paramètre transmis par l'URL (URI Param)
-    const URIParam = [icon, 'id', op.equal, req.params.id.trim()]
+    const URIParam = [equipment, 'id', op.equal, req.params.id.trim()]
 
     const params = {
-        table: icon,
+        table: equipment,
         URIParam: URIParam,
-        functionName: 'deleteIconById',
+        functionName: 'deleteEquipmentById',
     }
 
     crud.deleteRecordById(params)(req, res)
 }
 
-module.exports = {readIcons, readIconList, readIconById, deleteIconById, createIcon, updateIconById}
+module.exports = {readEquipments, readEquipmentList, readEquipmentById, deleteEquipmentById, createEquipment, updateEquipmentById}
