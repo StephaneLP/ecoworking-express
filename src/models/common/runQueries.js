@@ -73,8 +73,8 @@ const runQueryInsert = async (params) => {
 
         // Construction de la requête SQL
         const sql = build.sqlInsert(params)
-        if (!sql.success) return sql
 
+        if (!sql.success) return sql
         // Éxecution de la requête
         conn = await db.getConnection()
         const result = await conn.query(sql.reqString, sql.reqParams)

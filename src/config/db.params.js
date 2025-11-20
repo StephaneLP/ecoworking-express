@@ -27,7 +27,7 @@ const dbRelations = {
     icon: {
         icon_type: [relationType.belongsTo, 'icon.icon_type_id = icon_type.id'],
         user: [relationType.oneToMany, 'icon.id = user.icon_id'],
-        equipement: [relationType.oneToMany, 'icon.id = equipement.icon_id'],
+        equipment: [relationType.oneToMany, 'icon.id = equipment.icon_id'],
     },
     city: { 
         ecoworking: [relationType.oneToMany, 'city.id = ecoworking.city_id']
@@ -35,7 +35,7 @@ const dbRelations = {
     ecoworking: {
         city: [relationType.belongsTo, 'ecoworking.city_id = city.id'],
         information: [relationType.oneToMany, 'ecoworking.id = information.ecoworking_id'],
-        equipement: [relationType.oneToMany, 'ecoworking.id = equipement.ecoworking_id'],
+        equipment: [relationType.oneToMany, 'ecoworking.id = equipment.ecoworking_id'],
         evaluation: [relationType.oneToMany, 'ecoworking.id = evaluation.ecoworking_id']
     },
     equipment: {

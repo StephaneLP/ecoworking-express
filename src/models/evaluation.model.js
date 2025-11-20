@@ -1,5 +1,5 @@
-const user = {
-    tableName: 'user',
+const evaluation = {
+    tableName: 'evaluation',
     tableColumns: {
         id: {
             type: 'integer',
@@ -7,40 +7,26 @@ const user = {
             autoIncrement: true,
             primaryKey: true
         },
-        email: {
+        note: {
+            type: 'integer',
+            nullAuthorized: false,
+        },        
+        comment: {
             type: 'string',
             nullAuthorized: false,
-            length: 254,
+            length: 2000,
             emptyAuthorized: false,
         },
-        nickname: {
-            type: 'string',
-            nullAuthorized: false,
-            length: 20,
-            emptyAuthorized: false,
-        },
-        is_verified: {
+        is_active: {
             type: 'boolean',
-            nullAuthorized: false,
+            nullAuthorized: false
         },
-        password: {
-            type: 'string',
-            nullAuthorized: false,
-            length: 254,
-            emptyAuthorized: false,
-        },
-        icon_color: {
-            type: 'string',
-            nullAuthorized: false,
-            length: 7,
-            emptyAuthorized: false,
-        },
-        role_id: {
+        user_id: {
             type: 'integer',
             nullAuthorized: false,
             foreignKey: true
         },
-        icon_id: {
+        ecoworking_id: {
             type: 'integer',
             nullAuthorized: false,
             foreignKey: true
@@ -52,4 +38,4 @@ const user = {
     }
 }
 
-module.exports = user
+module.exports = evaluation

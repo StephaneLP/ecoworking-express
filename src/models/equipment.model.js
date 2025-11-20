@@ -10,7 +10,7 @@ const equipment = {
         name: {
             type: 'string',
             nullAuthorized: false,
-            length: 254,
+            length: 200,
             emptyAuthorized: false,
         },
         rank: {

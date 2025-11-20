@@ -39,6 +39,7 @@ const roleRoutes = require('./src/routes/role.routes.js')
 const iconRoutes = require('./src/routes/icon.routes.js')
 const iconTypeRoutes = require('./src/routes/iconType.routes.js')
 const equipmentRoutes = require('./src/routes/equipment.routes.js')
+const evaluationRoutes = require('./src/routes/evaluation.routes.js')
 
 app.use('/ville/', cityRoutes)
 app.use('/ecoworking/', ecoworkingRoutes)
@@ -47,6 +48,7 @@ app.use('/role/', roleRoutes)
 app.use('/icone/', iconRoutes)
 app.use('/iconetype/', iconTypeRoutes)
 app.use('/equipement/', equipmentRoutes)
+app.use('/evaluation/', evaluationRoutes)
 
 /*********************************************************
 Ouverture du port

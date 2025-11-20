@@ -11,7 +11,7 @@ const formatResponse = (params, dbRes) => {
     const mainTableName = mainTable[0].tableName
     const arrResult = []
     let joinTableName, datas
-
+console.log("REQUEST=>", dbRes)
     const isMainTableParent = hasChildren(mainTable[0].tableName, joinTables)
     if (!isMainTableParent) {
         for (let line of dbRes) {      
@@ -28,14 +28,16 @@ const formatResponse = (params, dbRes) => {
     }
     else {
         const arrStack = []
-        let parentID, key
+        let parentID, key, isJoinTableChild, datasFromJoinTable
 
         for (let line of dbRes) {      
             datas = {...line[mainTableName]}
             parentID = datas['parentID']
 
-            for (let table of joinTables) {  
+            for (let table of joinTables) {
                 joinTableName = table[0].tableName
+                // isJoinTableChild = isParent(mainTableName, joinTableName)
+                // datasFromJoinTable = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
 
                 if (!arrStack.includes(parentID)) {
                     datas[joinTableName] = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
@@ -44,10 +46,22 @@ const formatResponse = (params, dbRes) => {
                 }
                 else {
                     key = arrResult.findIndex((el) => el['parentID'] === parentID)
-                    arrResult[key][joinTableName].push({...line[joinTableName]})
+
+
+
+
+                    if (arrResult[key][joinTableName]) {
+
+
+
+                        arrResult[key][joinTableName].push({...line[joinTableName]})
+
+                    }
+                    else {
+                        arrResult[key][joinTableName] = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
+                    }
                 }
             }
-
             datas = {}
         }
     }

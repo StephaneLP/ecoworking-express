@@ -14,7 +14,6 @@ const sqlSelect = (params) =>  {
 
     // WHERE : liste des conditions et tableau des valeurs
     const conditions = buildWhereConditions(params)
-console.log('=>', conditions)
     const arrParams = [...conditions.params]
     const reqConditions = [...conditions.conditions].join(' AND ')
     const reqWhere = reqConditions ? ` WHERE ${reqConditions}` : ''
@@ -171,7 +170,7 @@ const buildFromConditions = (params) => {
     for (let joinTable of joinTables) {
         joinTableName = joinTable[0].tableName
         condition = dbRelations[mainTableName][joinTableName][1]
-        tableList += ` INNER JOIN ${joinTableName} ON ${condition}`
+        tableList += ` LEFT JOIN ${joinTableName} ON ${condition}`
     }
 
     return tableList

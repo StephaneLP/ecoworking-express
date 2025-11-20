@@ -1,5 +1,7 @@
 const ecoworking = require('../models/ecoworking.model')
 const city = require('../models/city.model')
+const equipment = require('../models/equipment.model')
+const evaluation = require('../models/evaluation.model')
 const crud = require('./common/crud')
 const {trimStringValues} = require('../utils/tools')
 const {op} = require('../config/db.params')
@@ -14,7 +16,8 @@ const readEcoworking = (req, res) => {
     // TABLES & COLONNES (SELECT...FROM...)
     const tables = {
         mainTable: [ecoworking, ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']],
-        joinTables : [[city, ['id', 'name']]]
+        // joinTables : [[city, ['id', 'name']], [equipment, ['id', 'name']]]
+        joinTables : [[city, ['id', 'name']], [equipment, ['id', 'name']], [evaluation, ['id', 'note', 'comment']]]
     }
 
     // FILTRE (clause WHERE)
