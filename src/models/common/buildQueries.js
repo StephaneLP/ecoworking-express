@@ -1,4 +1,4 @@
-const {hasChildren} = require('../../config/db.params')
+const {isParent, hasChildren, getPKColumn} = require('../../config/db.params')
 const {op, dbRelations} = require('../../config/db.params')
 
 /*********************************************************
@@ -123,7 +123,8 @@ const buildColumnsList = (params) => {
     const mainTable = params.tables.mainTable
     const joinTables = params.tables.joinTables
     const arrColumns = []
-    let mainTableName, joinTableName, primaryKey = ''
+    let mainTableName, joinTableName, mainTablePK, joinTablePK, PKColumn, primaryKey = ''
+
 
     // Table principale
     mainTableName = mainTable[0].tableName
@@ -131,25 +132,27 @@ const buildColumnsList = (params) => {
         arrColumns.push(`${mainTableName}.${column}`)
     }
 
-    // Ajout de la clé primaire (sortId) pour la mise en forme JSON si tables enfants jointes    
+    // Ajout de la clé primaire en tant que 'buildKey' pour la mise en forme JSON si tables enfants jointes    
     if (hasChildren(mainTable[0].tableName, joinTables)) {
-        const tableColumns = mainTable[0].tableColumns
- 
-        for (let column in tableColumns) {
-            if (tableColumns[column].primaryKey) {
-                primaryKey = column
-                continue
-            }
-        }
-        arrColumns.push(`${mainTableName}.${primaryKey} AS parentID`)
+        mainTablePK = mainTable[2]
+        if (!mainTablePK) mainTablePK = getPKColumn(mainTable[0].tableColumns)
+        arrColumns.push(`${mainTableName}.${mainTablePK} AS buildKey`)
     }
 
     // Tables jointes (facultatives)
     for (let table of joinTables) {
         joinTableName = table[0].tableName
+
         for (let column of table[1]) {
             arrColumns.push(`${joinTableName}.${column}`)
-        }        
+        }
+
+        // Ajout de la clé primaire en tant que 'buildKey' pour la mise en forme JSON si tables enfants jointes
+        if (isParent(mainTable[0].tableName, table[0].tableName)) {
+            joinTablePK = table[2]
+            if (!joinTablePK) joinTablePK = getPKColumn(table[0].tableColumns)
+            arrColumns.push(`${joinTableName}.${joinTablePK} AS buildKey`)
+        }
     }
 
     return arrColumns

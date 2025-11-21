@@ -61,4 +61,12 @@ const hasChildren = (mainTableName, joinTables) => {
     return false
 }
 
-module.exports = {op, dbRelations, isParent, hasChildren}
+// Recherche de la colonne étant la clé primaire de la table
+const getPKColumn = (columns) => {
+    for (let column in columns) {
+        if (columns[column].primaryKey) return column
+    }
+    return "id" // Champ PK par défaut
+}
+
+module.exports = {op, dbRelations, isParent, hasChildren, getPKColumn}

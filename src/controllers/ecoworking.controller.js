@@ -10,14 +10,13 @@ const {op} = require('../config/db.params')
 READ / GET / SELECT
 *********************************************************/
 
-const readEcoworking = (req, res) => {
+const readEcoworkings = (req, res) => {
     const query = trimStringValues(req.query)
 
     // TABLES & COLONNES (SELECT...FROM...)
     const tables = {
-        mainTable: [ecoworking, ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']],
-        // joinTables : [[city, ['id', 'name']], [equipment, ['id', 'name']]]
-        joinTables : [[city, ['id', 'name']], [equipment, ['id', 'name']], [evaluation, ['id', 'note', 'comment']]]
+        mainTable: [ecoworking, ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at'], 'id'],
+        joinTables : [[city, ['name']], [equipment, ['name'], 'id'], [evaluation, ['note', 'comment'], 'id']]
     }
 
     // FILTRE (clause WHERE)
@@ -34,7 +33,30 @@ const readEcoworking = (req, res) => {
         tables: tables,
         queryParams: queryParams,
         orderParams: orderParams,
-        functionName: 'readEcoworking',
+        functionName: 'readEcoworkings',
+    }
+
+    crud.readRecords(params)(req, res)
+}
+
+const readEcoworkingList = (req, res) => {
+    // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
+    const tables = {
+        mainTable: [ecoworking, ['*']],
+        joinTables : [[city, ['name']]]
+    }
+
+    // FILTRE (WHERE) / Template : [ modèle, colonne, opérateur, [valeurs] (,option : paterne)]
+    const queryParams = []
+    
+    // TRI (ORDER BY) / Template [modèle, colonne, direction]
+    const orderParams = [[ecoworking, 'name', 'ASC']]
+
+    const params = {
+        tables: tables,
+        queryParams: queryParams,
+        orderParams: orderParams,
+        functionName: 'readEcoworkingList',
     }
 
     crud.readRecords(params)(req, res)
@@ -114,4 +136,4 @@ const deleteEcoworkingById = (req, res) => {
     crud.deleteRecordById(params)(req, res)
 }
 
-module.exports = {readEcoworking, readEcoworkingById, deleteEcoworkingById, createEcoworking, updateEcoworkingById}
+module.exports = {readEcoworkings, readEcoworkingList, readEcoworkingById, deleteEcoworkingById, createEcoworking, updateEcoworkingById}

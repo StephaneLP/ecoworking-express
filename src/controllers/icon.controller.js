@@ -1,5 +1,6 @@
 const icon = require('../models/icon.model')
 const iconType = require('../models/iconType.model')
+const equipment = require('../models/equipment.model')
 const crud = require('./common/crud')
 const {trimStringValues} = require('../utils/tools')
 const {op} = require('../config/db.params')
@@ -14,7 +15,7 @@ const readIcons = (req, res) => {
     // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
         mainTable: [icon, ['*']],
-        joinTables : [[iconType, ['*']]]
+        joinTables : [[iconType, ['*']], [equipment, ['*']]]
     }
 
     // FILTRE (WHERE) / Template : [ modèle, colonne, opérateur, [valeurs] (,option : paterne)]
