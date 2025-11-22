@@ -9,66 +9,135 @@ const formatResponse = (params, dbRes) => {
     const mainTable = params.tables.mainTable
     const joinTables = params.tables.joinTables
     const mainTableName = mainTable[0].tableName
-    const arrResult = []
-    let joinTableName, datas
-console.log("REQUEST=>", dbRes)
-    const isMainTableParent = hasChildren(mainTable[0].tableName, joinTables)
-    if (!isMainTableParent) {
-        for (let line of dbRes) {      
-            datas = {...line[mainTableName]}
+    const arrResult = [], mainStack = [], joinStack = {}
+    let joinTableName, datas, mainBuildKey, joinBuildKey, key, lineTemp = {}
 
-            for (let table of joinTables) {  
+    // Initialisation de la pile contenant les données jointes (tables enfant) déjà ajoutées
+    for (let table of joinTables) {
+        if (isParent(mainTableName, table[0].tableName)) joinStack[table[0].tableName] = []
+    }
+
+    for (let line of dbRes) {
+        // Récupération de la clé buildKey dans la réponse dbRes (undefined si absente)
+        mainBuildKey = line[mainTableName].buildKey
+
+        // Les données de la mainTable ont déjà été ajoutée à la réponse
+        if (mainStack.includes(mainBuildKey)) {
+            // Parcours des données des tables jointes
+            for (let table of joinTables) {
                 joinTableName = table[0].tableName
-                datas[joinTableName] = {...line[joinTableName]}
+                joinBuildKey = line[joinTableName].buildKey
+
+                // La table jointe est enfant et les données n'ont pas encore été ajoutées
+                if (joinBuildKey && !joinStack[joinTableName].includes([mainBuildKey, joinBuildKey].join())) {
+                    key = arrResult.findIndex((el) => el['buildKey'] === mainBuildKey)
+                    lineTemp = {...line[joinTableName]}
+                    delete lineTemp.buildKey
+                    arrResult[key][joinTableName].push(lineTemp)
+                    joinStack[joinTableName].push([mainBuildKey, joinBuildKey].join())
+                    lineTemp = {}
+                }
+            }
+        }
+        // Les données de la mainTable n'ont pas encore été ajoutés à la réponse
+        else {
+            datas = {...line[mainTableName]}
+            mainStack.push(mainBuildKey)
+
+            // Parcours des données des tables jointes
+            for (let table of joinTables) {
+                joinTableName = table[0].tableName
+                joinBuildKey = line[joinTableName].buildKey
+
+                if (joinBuildKey === null) continue
+                if (!isParent(mainTableName, joinTableName)) {
+                    datas[joinTableName] = {...line[joinTableName]}
+                }
+                else {
+                    datas[joinTableName] = [{...line[joinTableName]}]
+                    joinStack[joinTableName].push([mainBuildKey, joinBuildKey].join())
+                    delete datas[joinTableName][0].buildKey
+                }
             }
 
             arrResult.push(datas)
-            datas = {}
         }
-    }
-    else {
-        const arrStack = []
-        let parentID, key, isJoinTableChild, datasFromJoinTable
 
-        for (let line of dbRes) {      
-            datas = {...line[mainTableName]}
-            parentID = datas['parentID']
-
-            for (let table of joinTables) {
-                joinTableName = table[0].tableName
-                // isJoinTableChild = isParent(mainTableName, joinTableName)
-                // datasFromJoinTable = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
-
-                if (!arrStack.includes(parentID)) {
-                    datas[joinTableName] = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
-                    arrStack.push(parentID)
-                    arrResult.push(datas)
-                }
-                else {
-                    key = arrResult.findIndex((el) => el['parentID'] === parentID)
-
-
-
-
-                    if (arrResult[key][joinTableName]) {
-
-
-
-                        arrResult[key][joinTableName].push({...line[joinTableName]})
-
-                    }
-                    else {
-                        arrResult[key][joinTableName] = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
-                    }
-                }
-            }
-            datas = {}
-        }
+        datas = {}
     }
 
-    arrResult.forEach(line => delete line.parentID)
+    // Suppression des clés buildKey
+    arrResult.forEach(line => delete line.buildKey)
+
     return arrResult
 }
+
+// const formatResponse = (params, dbRes) => {
+//     const mainTable = params.tables.mainTable
+//     const joinTables = params.tables.joinTables
+//     const mainTableName = mainTable[0].tableName
+//     const arrResult = []
+//     let joinTableName, datas
+
+// // console.log("REQUEST=>", dbRes)
+
+//     const isMainTableParent = hasChildren(mainTable[0].tableName, joinTables)
+//     if (!isMainTableParent) {
+//         for (let line of dbRes) {      
+//             datas = {...line[mainTableName]}
+
+//             for (let table of joinTables) {  
+//                 joinTableName = table[0].tableName
+//                 datas[joinTableName] = {...line[joinTableName]}
+//             }
+
+//             arrResult.push(datas)
+//             datas = {}
+//         }
+//     }
+//     else {
+//         const mainStack = []
+//         let parentID, key, isJoinTableChild, datasFromJoinTable
+
+//         for (let line of dbRes) {      
+//             datas = {...line[mainTableName]}
+//             parentID = datas['parentID']
+
+//             for (let table of joinTables) {
+//                 joinTableName = table[0].tableName
+//                 // isJoinTableChild = isParent(mainTableName, joinTableName)
+//                 // datasFromJoinTable = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
+
+//                 if (!mainStack.includes(parentID)) {
+//                     datas[joinTableName] = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
+//                     mainStack.push(parentID)
+//                     arrResult.push(datas)
+//                 }
+//                 else {
+//                     key = arrResult.findIndex((el) => el['parentID'] === parentID)
+
+
+
+
+//                     if (arrResult[key][joinTableName]) {
+
+
+
+//                         arrResult[key][joinTableName].push({...line[joinTableName]})
+
+//                     }
+//                     else {
+//                         arrResult[key][joinTableName] = (isParent(mainTableName, joinTableName) ? [{...line[joinTableName]}] : {...line[joinTableName]})
+//                     }
+//                 }
+//             }
+//             datas = {}
+//         }
+//     }
+
+//     arrResult.forEach(line => delete line.parentID)
+//     return arrResult
+// }
 
 /*********************************************************
 REPONSES RETOURNÉES AU CLIENT - LOG DES REQUÊTES ET ERREURS
