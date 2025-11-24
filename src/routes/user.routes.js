@@ -8,10 +8,9 @@ router.route('/')
 router.route('/liste/')
     .get(userController.readUserList)
 
-router.route('/inscription')
-    .post(userController.createUser)
-
-router.route('/connexion')
-    .post(userController.connectUser)
+router.route('/:id')  
+    .get(userController.readUserById)
+    .delete(userController.deleteUserById)
+    .put(userController.updateUserById)
 
 module.exports = router

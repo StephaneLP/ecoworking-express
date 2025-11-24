@@ -133,4 +133,4 @@ const deleteCityById = (req, res) => {
     crud.deleteRecordById(params)(req, res)
 }
 
-module.exports = {readCities, readCityList, readCityById, deleteCityById, createCity, updateCityById}
+module.exports = {readCities, readCityList, readCityById, createCity, updateCityById, deleteCityById}

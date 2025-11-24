@@ -42,7 +42,7 @@ const formatResponse = (params, dbRes) => {
         // Les données de la mainTable n'ont pas encore été ajoutés à la réponse
         else {
             datas = {...line[mainTableName]}
-            mainStack.push(mainBuildKey)
+            if (mainBuildKey) mainStack.push(mainBuildKey)
 
             // Parcours des données des tables jointes
             for (let table of joinTables) {

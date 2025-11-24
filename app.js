@@ -1,5 +1,6 @@
 const express = require('express')
 const serveFavicon = require('serve-favicon')
+const cors = require('cors')
 const log = require('./src/utils/log')
 const app = express()
 const checkJSONSyntax = require('./src/middlewares/parseJSON')
@@ -11,6 +12,7 @@ Middlewares
 app.use(serveFavicon(__dirname + '/favicon.png'))
 app.use(express.json())
 app.use(checkJSONSyntax)
+app.use(cors())
 
 /*********************************************************
 Middlewares spécifiques à l'environnement de développement
@@ -35,6 +37,7 @@ Routes
 const cityRoutes = require('./src/routes/city.routes.js')
 const ecoworkingRoutes = require('./src/routes/ecoworking.routes.js')
 const userRoutes = require('./src/routes/user.routes.js')
+const signRoutes = require('./src/routes/sign.routes.js')
 const roleRoutes = require('./src/routes/role.routes.js')
 const iconRoutes = require('./src/routes/icon.routes.js')
 const iconTypeRoutes = require('./src/routes/iconType.routes.js')
@@ -44,6 +47,7 @@ const evaluationRoutes = require('./src/routes/evaluation.routes.js')
 app.use('/ville/', cityRoutes)
 app.use('/ecoworking/', ecoworkingRoutes)
 app.use('/utilisateur/', userRoutes)
+app.use('/connexion/', signRoutes)
 app.use('/role/', roleRoutes)
 app.use('/icone/', iconRoutes)
 app.use('/iconetype/', iconTypeRoutes)
