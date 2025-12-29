@@ -15,8 +15,8 @@ const readEcoworkings = (req, res) => {
 
     // TABLES & COLONNES (SELECT...FROM...)
     const tables = {
-        mainTable: [ecoworking, ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at'], 'id'],
-        joinTables : [[city, ['name']], [equipment, ['name'], 'id'], [evaluation, ['note', 'comment'], 'id']]
+        mainTable: [ecoworking, ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']],
+        joinTables : [[city, ['name']], [equipment, ['name']], [evaluation, ['note', 'comment']]]
     }
 
     // FILTRE (clause WHERE)

@@ -134,8 +134,9 @@ const buildColumnsList = (params) => {
 
     // Ajout de la clé primaire en tant que 'buildKey' pour la mise en forme JSON si tables enfants jointes    
     if (hasChildren(mainTable[0].tableName, joinTables)) {
-        mainTablePK = mainTable[2]
-        if (!mainTablePK) mainTablePK = getPKColumn(mainTable[0].tableColumns)
+        // mainTablePK = mainTable[2]
+        // if (!mainTablePK) mainTablePK = getPKColumn(mainTable[0].tableColumns)
+        mainTablePK = getPKColumn(mainTable[0].tableColumns)
         arrColumns.push(`${mainTableName}.${mainTablePK} AS buildKey`)
     }
 
