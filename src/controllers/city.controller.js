@@ -14,7 +14,7 @@ const readCities = (req, res) => {
     // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
         mainTable: [city, ['*']],
-        joinTables : [[ecoworking, ['id', 'name', 'phone', 'email', 'is_active', 'created_at', 'updated_at']]]
+        joinTables : [[ecoworking, ['*']]]
     }
 
     // FILTRE (WHERE) / Template : [ modèle, colonne, opérateur, [valeurs] (,option : paterne)]
@@ -39,13 +39,13 @@ const readCities = (req, res) => {
 const readCityList = (req, res) => {
     // TABLES & COLONNES (SELECT FROM) / Template : [ modèle, [colonne1, colonne2, ...]]
     const tables = {
-        mainTable: [city, ['name']],
+        mainTable: [city, ['id', 'name', 'is_active']],
         joinTables : []
     }
 
     // FILTRE (WHERE) / Template : [ modèle, colonne, opérateur, [valeurs] (,option : paterne)]
     const queryParams = [[city, 'is_active', op.equal, ['1']]]
-    
+
     // TRI (ORDER BY) / Template [modèle, colonne, direction]
     const orderParams = [[city, 'rank', 'ASC'], [city, 'name', 'ASC']]
 
