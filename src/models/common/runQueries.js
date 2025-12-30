@@ -21,7 +21,7 @@ const runQuerySelect = async (params) => {
 
         // Construction de la requête SQL
         const sql = build.sqlSelect(params)
-
+console.log(sql)
         // Éxecution de la requête
         conn = await db.getConnection()
         const result = await conn.query({nestTables: true, sql: sql.reqString}, sql.reqParams)
@@ -78,7 +78,6 @@ const runQueryInsert = async (params) => {
         // Éxecution de la requête
         conn = await db.getConnection()
         const result = await conn.query(sql.reqString, sql.reqParams)
-
         return {success: true, result: result}
     }
     catch(err) {
